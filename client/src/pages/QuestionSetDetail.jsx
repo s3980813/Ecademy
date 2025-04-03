@@ -1,37 +1,46 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext.jsx";
 import QuestionPopup from "../components/ui/QuestionPopup.jsx";
+import axios from "axios";
 
 export default function QuestionSetDetail() {
-    // Get question set ID from URL params
+    // Get the question set ID from the URL parameters
     const { id } = useParams(); 
-    const { user } = useAuth(); 
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-    // State to manage question data
-    const [questions, setQuestions] = useState([]);
+    // Ensure `questions` is an array by default
+    const [questions, setQuestions] = useState([]); 
     const [modalOpen, setModalOpen] = useState(false);
     const [editQuestion, setEditQuestion] = useState(null);
+    const [newSet, setNewSet] = useState({});
 
-    // Fetch sample questions (NO API)
+    // Fetch questions and question set details when the component mounts
     useEffect(() => {
-        fetchQuestions();
-    }, []);
-    const fetchQuestions = () => {
-        setTimeout(() => {
-            const sampleData = [
-                { _id: "1", text: "What is 2 + 2?", options: { A: "3", B: "4", C: "5", D: "6" }, correctAnswer: "B", difficulty: "easy" },
-                { _id: "2", text: "What is the capital of France?", options: { A: "Berlin", B: "Madrid", C: "Paris", D: "London" }, correctAnswer: "C", difficulty: "easy" },
-                { _id: "3", text: "What is the square root of 144?", options: { A: "10", B: "12", C: "14", D: "16" }, correctAnswer: "B", difficulty: "medium" },
-                { _id: "4", text: "Who developed the theory of relativity?", options: { A: "Newton", B: "Einstein", C: "Tesla", D: "Hawking" }, correctAnswer: "B", difficulty: "medium" },
-                { _id: "5", text: "Solve: 5x - 3 = 12", options: { A: "2", B: "3", C: "4", D: "5" }, correctAnswer: "B", difficulty: "hard" },
-                { _id: "6", text: "What is the derivative of x^2?", options: { A: "x", B: "2x", C: "x^2", D: "3x" }, correctAnswer: "B", difficulty: "hard" },
-            ];
-            setQuestions(sampleData);
-        }, 500);
-    };
+        const fetchQuestions = async () => {
+            try {
+                const response = await axios.get(`${BACKEND_URL}/questions`, {
+                    params: { questionSetId: id },
+                });
+                if (response.status === 200) {
+                    setQuestions(Array.isArray(response.data) ? response.data : []);
+                } else {
+                    console.error("Failed to fetch questions:", response.statusText);
+                }
+                const setResponse = await axios.get(`${BACKEND_URL}/question-sets/${id}`);
+                if (setResponse.status === 200) {
+                    setNewSet(setResponse.data);
+                } else {
+                    console.error("Failed to fetch question set:", setResponse.statusText);
+                }
+            } catch (error) {
+                console.error("Error fetching questions:", error);
+            }
+        };
 
-    // Open and close the popup for adding/editing questions
+        fetchQuestions();
+    }, [id, BACKEND_URL]);
+
+    // Function to handle opening and closing the question popup
     const openPopup = (question = null) => {
         setEditQuestion(question);
         setModalOpen(true);
@@ -41,42 +50,69 @@ export default function QuestionSetDetail() {
         setModalOpen(false);
     };
 
-    // Handle saving a question (NO API)
-    const handleSaveQuestion = (formData) => {
-        if (editQuestion) {
-            setQuestions((prev) =>
-                prev.map((q) => (q._id === editQuestion._id ? { ...q, ...formData } : q))
-            );
-        } else {
-            const newQuestion = { ...formData, _id: String(Date.now()) };
-            setQuestions((prev) => [...prev, newQuestion]);
+    // Function to handle saving a question
+    const handleSaveQuestion = async (formData) => {
+        try {
+            if (editQuestion) {
+                // Update existing question
+                const response = await axios.put(`${BACKEND_URL}/questions/${editQuestion._id}`, formData);
+                if (response.status === 200) {
+                    setQuestions((prev) =>
+                        prev.map((q) => (q._id === editQuestion._id ? { ...q, ...formData } : q))
+                    );
+                }
+            } else {
+                // Check if question limit is reached
+                if (formData.difficulty === "easy" && questions.filter((q) => q.difficulty === "easy").length >= newSet.easy) {
+                    alert("Easy question limit reached!");
+                    return;
+                }
+                if (formData.difficulty === "medium" && questions.filter((q) => q.difficulty === "medium").length >= newSet.medium) {
+                    alert("Medium question limit reached!");
+                    return;
+                }
+                if (formData.difficulty === "hard" && questions.filter((q) => q.difficulty === "hard").length >= newSet.hard) {
+                    alert("Hard question limit reached!");
+                    return;
+                }
+                // Create a new question
+                const response = await axios.post(`${BACKEND_URL}/questions`, { ...formData, questionSetId: id });
+                if (response.status === 201) {
+                    setQuestions([...questions, response.data]);
+                }
+            }
+        } catch (error) {
+            console.error("Error saving question:", error);
         }
         closePopup();
     };
 
-    // Handle deleting a question (NO API)
-    const deleteQuestion = (questionId) => {
+    // Function to handle deleting a question
+    const deleteQuestion = async (questionId) => {
         if (!window.confirm("Are you sure you want to delete this question?")) return;
-        setQuestions((prev) => prev.filter((q) => q._id !== questionId));
+        try {
+            await axios.delete(`${BACKEND_URL}/questions/${questionId}`);
+            setQuestions((prev) => prev.filter((q) => q._id !== questionId));
+        } catch (error) {
+            console.error("Error deleting question:", error);
+        }
     };
 
-
-    // Group questions by difficulty
+    // Ensure groupedQuestions is based on an array
     const groupedQuestions = {
-        easy: questions.filter((q) => q.difficulty === "easy"),
-        medium: questions.filter((q) => q.difficulty === "medium"),
-        hard: questions.filter((q) => q.difficulty === "hard"),
+        easy: (questions || []).filter((q) => q.difficulty === "easy"),
+        medium: (questions || []).filter((q) => q.difficulty === "medium"),
+        hard: (questions || []).filter((q) => q.difficulty === "hard"),
     };
 
     return (
         <>
-        {/* Main background */}
+        {/* Main background */ }
         <div className="flex flex-col items-center w-full min-h-screen bg-background p-4">
-            {/* Container to store main content */}
+            {/* Question container */}
             <div className="w-[80%] bg-card shadow-lg mx-auto p-6">
-                {/* Header */}
-                <h1 className="text-2xl font-bold mb-4">Question Set Details</h1>
-                {/* Add question button */}
+                {/* Question set title and add question button */}
+                <h1 className="text-2xl font-bold mb-4">{newSet.name}</h1>
                 <button onClick={() => openPopup()} className="mb-4 px-4 py-2 bg-green-500 text-white rounded-md">
                     + Add Question
                 </button>
@@ -86,20 +122,21 @@ export default function QuestionSetDetail() {
                     <div key={level} className="mb-6">
                         {/* Category title */}
                         <h2 className={`text-xl font-semibold ${level === "easy" ? "text-green-600" : level === "medium" ? "text-yellow-600" : "text-red-600"}`}>
-                            {level.charAt(0).toUpperCase() + level.slice(1)} Questions
+                            {level.charAt(0).toUpperCase() + level.slice(1)} Questions ({groupedQuestions[level].length} of {newSet[level]}):
                         </h2>
-                        {/* Question list depend on level*/}
+                        {/* Questions list */}
                         <div className="border p-4 rounded-md">
                             {groupedQuestions[level].length > 0 ? (
                                 groupedQuestions[level].map((q) => (
+                                    // Display each question with edit and delete buttons
                                     <div key={q._id} className="flex justify-between items-center p-3 border-b">
                                         <span>{q.text}</span>
                                         <div>
-                                            {/* Edit buttons */}
+                                            {/* Edit and delete buttons */}
                                             <button onClick={() => openPopup(q)} className="px-2 py-1 bg-blue-500 text-white rounded-md mr-2">
                                                 Edit
                                             </button>
-                                            {/* Delete buttons */}
+                                            {/* Delete button */}
                                             <button onClick={() => deleteQuestion(q._id)} className="px-2 py-1 bg-red-500 text-white rounded-md">
                                                 Delete
                                             </button>

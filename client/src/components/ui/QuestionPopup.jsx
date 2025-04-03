@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function QuestionPopup({ question, onSave, onClose }) {
     const [text, setText] = useState(question?.text || "");
     const [options, setOptions] = useState(question?.options || { A: "", B: "", C: "", D: "" });
-    const [correctAnswer, setCorrectAnswer] = useState(question?.correctAnswer || "");
+    const [correctAnswer, setCorrectAnswer] = useState(question?.correctAnswer || "A");
     const [difficulty, setDifficulty] = useState(question?.difficulty || "easy");
 
     const handleOptionChange = (optionKey, value) => {

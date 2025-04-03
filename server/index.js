@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import questionSetRoutes from './routes/questionSetRoutes.js';
+import questionRoutes from "./routes/questionRoutes.js";
 import cookieParser from "cookie-parser";
 
 
@@ -31,5 +32,6 @@ app.get("/", (req, res) => {
 });
 app.use("/api/users", authRoutes);
 app.use("/api/question-sets", questionSetRoutes);
+app.use("/api/questions", questionRoutes);
 
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

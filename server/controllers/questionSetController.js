@@ -1,4 +1,5 @@
 import QuestionSet from "../models/questionSetModel.js";
+import Question from "../models/questionModel.js";
 
 // Get all question sets
 export const getAllQuestionSets = async (req, res) => {
@@ -49,6 +50,7 @@ export const deleteQuestionSet = async (req, res) => {
     try {
         const deletedSet = await QuestionSet.findByIdAndDelete(req.params.id);
         if (!deletedSet) return res.status(404).json({ message: "Question set not found" });
+        await Question.deleteMany({ questionSetId: req.params.id });
         res.status(200).json({ message: "Question set successfully deleted" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting question set", error });

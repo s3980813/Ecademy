@@ -18,7 +18,6 @@ export default function QuestionSet() {
     useEffect(() => {
         const fetchSets = async () => {
             try {
-                console.log(user._id);
                 const response = await axios.get(`${BACKEND_URL}/question-sets/teacher/${user._id}`);
                 if (response.status === 200) {
                     setSets(response.data);
@@ -89,7 +88,7 @@ export default function QuestionSet() {
 
     // Access a question set
     const accessSet = (id) => {
-        console.log(`Truy cập bộ câu hỏi với ID: ${id}`);
+        window.location.href = `/teacher-dashboard/question-set/${id}`;
     };
 
     return (
