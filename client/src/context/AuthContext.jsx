@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
 const AuthContext = createContext();
@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     // Check authentication status 
-    const checkAuth = async () => {
+    const checkAuth = useCallback( async () => {
         try {
             setLoading(true);
             const token = sessionStorage.getItem("token") || null;
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [BACKEND_URL, setLoading, setUser]);
 
     // Login function
     const login = async (formData) => {
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     // Auto-check login on page load
     useEffect(() => {
         checkAuth();
-    }, []);
+    }, [checkAuth]);
 
     return (
         <AuthContext.Provider value={{ user, loading, login, register, logout }}>
@@ -88,5 +88,3 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);

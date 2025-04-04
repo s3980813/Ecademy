@@ -1,7 +1,7 @@
 import { Mail, Lock } from "lucide-react";
 import { useState } from "react";
 import ErrorPopup from "../components/ui/ErrorPopup.jsx";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../hooks/useAuth.jsx";
 
 export default function Login() {
     // State to manage form data and error message

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QuestionSetPopup from '../components/ui/QuestionSetPopup';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 
 
