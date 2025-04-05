@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import QuestionPopup from "../components/ui/QuestionPopup.jsx";
 import axios from "axios";
+import UploadQuestions from "../components/ui/UploadQuestion.jsx";
 
 export default function QuestionSetDetail() {
     // Get the question set ID from the URL parameters
@@ -116,6 +117,8 @@ export default function QuestionSetDetail() {
                 <button onClick={() => openPopup()} className="mb-4 px-4 py-2 bg-green-500 text-white rounded-md">
                     + Add Question
                 </button>
+
+                <UploadQuestions newSet={newSet} BACKEND_URL={BACKEND_URL} setQuestions={setQuestions} />
 
                 {/* Question categories */}
                 {["easy", "medium", "hard"].map((level) => (

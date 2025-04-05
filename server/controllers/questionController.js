@@ -36,6 +36,27 @@ export const createQuestion = async (req, res) => {
     }
 };
 
+// Create new questions
+export const addMultipleQuestions = async (req, res) => {
+    try {
+        const { questions } = req.body;
+
+        // Check if questions is an array and contains at least one question
+        if (!Array.isArray(questions) || questions.length === 0) {
+            return res.status(400).json({ message: "Invalid input: 'questions' should be a non-empty array" });
+        }
+
+        // Insert multiple questions at once using insertMany (this is more efficient than saving each individually)
+        const savedQuestions = await Question.insertMany(questions);
+
+        // Respond with the saved questions
+        res.status(201).json(savedQuestions);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
 // Update a question by ID
 export const updateQuestion = async (req, res) => {
     try {

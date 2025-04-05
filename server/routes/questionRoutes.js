@@ -3,6 +3,7 @@ import {
     getQuestionsBySet,
     getQuestionById,
     createQuestion,
+    addMultipleQuestions,
     updateQuestion,
     deleteQuestion,
 } from "../controllers/questionController.js";
@@ -17,6 +18,9 @@ router.get("/:id", getQuestionById);
 
 // Create a new question
 router.post("/", createQuestion);
+
+// Create multiple questions
+router.post("/multiple", addMultipleQuestions);
 
 // Update a question by ID
 router.put("/:id", updateQuestion);
