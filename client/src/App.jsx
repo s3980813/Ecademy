@@ -9,6 +9,7 @@ import QuestionSet from "./pages/QuestionSet";
 import QuestionSetDetail from "./pages/QuestionSetDetail";
 import Navbar from "./components/Navbar";
 import "./App.css";
+import Test from "./pages/Test";
 
 export default function App() {
     const location = useLocation();
@@ -32,6 +33,7 @@ export default function App() {
                 <Route path="/teacher-dashboard" element={<ProtectedRoutes isTeacher={true}><TeacherDashboard /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/question-set" element={<ProtectedRoutes isTeacher={true}><QuestionSet /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/question-set/:id" element={<ProtectedRoutes isTeacher={true}><QuestionSetDetail /></ProtectedRoutes>} />
+                <Route path="/teacher-dashboard/test" element={<ProtectedRoutes isTeacher={true}><Test /></ProtectedRoutes>} />
                 <Route path="*" element={<div className="flex justify-center items-center h-screen">404 Not Found</div>} />
             </Routes>
         </>
