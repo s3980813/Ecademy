@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import QuestionPopup from "../components/ui/QuestionPopup.jsx";
 import axios from "axios";
 import UploadQuestions from "../components/ui/UploadQuestion.jsx";
+import BackButton from "../components/ui/BackButton.jsx";
 
 export default function QuestionSetDetail() {
     // Get the question set ID from the URL parameters
@@ -110,6 +111,11 @@ export default function QuestionSetDetail() {
         <>
         {/* Main background */ }
         <div className="flex flex-col items-center w-full min-h-screen bg-background p-4">
+            {/* Back button */}
+            <div className="w-[80%] flex justify-start mb-4">
+                <BackButton />  
+            </div>
+
             {/* Question container */}
             <div className="w-[80%] bg-card shadow-lg mx-auto p-6">
                 {/* Question set title and add question button */}

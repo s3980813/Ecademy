@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QuestionSetPopup from '../components/ui/QuestionSetPopup';
+import BackButton from '../components/ui/BackButton';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 
@@ -95,6 +96,10 @@ export default function QuestionSet() {
         <>
         {/* Main background */}
         <div className="flex flex-col items-center w-full min-h-screen bg-background p-4">
+            {/* Back button */}
+            <div className="w-[80%] flex justify-start mb-4">
+                <BackButton />  
+            </div>
             {/* Container to store main content */}
             <div className ="bg-card shadow-lg rounded-lg p-8 w-[80%] flex flex-col items-center">
                 <div className="flex justify-between w-full mb-6">

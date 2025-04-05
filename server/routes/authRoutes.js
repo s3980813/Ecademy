@@ -21,6 +21,7 @@ router.get("/autologin", protect, (req, res) => {
             _id: req.user._id,
             username: req.user.username,
             email: req.user.email,
+            isTeacher: req.user.isTeacher,
         }
     });
 });

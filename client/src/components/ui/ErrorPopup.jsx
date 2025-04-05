@@ -4,8 +4,8 @@ export default function ErrorPopup({ message, onClose }) {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const fadeTimer = setTimeout(() => setVisible(false), 2700); // Fade out before disappearing
-    const removeTimer = setTimeout(onClose, 3000); // Auto close after 3s
+    const fadeTimer = setTimeout(() => setVisible(false), 2700); // Fade out
+    const removeTimer = setTimeout(onClose, 3000); // Auto close
 
     return () => {
       clearTimeout(fadeTimer);
@@ -15,11 +15,11 @@ export default function ErrorPopup({ message, onClose }) {
 
   return (
     <div
-      className={`absolute flex justify-center items-center bg-black bg-opacity-50 transition-opacity duration-300 ${
+      className={`fixed top-0 left-0 w-full h-full z-[9999] flex items-center justify-center pointer-events-none transition-opacity duration-300 ${
         visible ? "opacity-100" : "opacity-0"
       }`}
     >
-      <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg">
+      <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg pointer-events-auto">
         <p className="text-lg font-semibold">{message}</p>
         <button
           onClick={onClose}

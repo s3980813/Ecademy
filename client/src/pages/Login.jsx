@@ -43,9 +43,9 @@ export default function Login() {
         }
 
         try {
-            login(formData);
+            await login(formData);
         } catch (err) {
-            setError(err.response?.data?.message || "Login failed!");
+            setError(err.message || "Login failed!");
         }
     };
         
