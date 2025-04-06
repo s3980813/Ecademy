@@ -47,9 +47,8 @@ app.use("/api/question-sets", questionSetRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/users", userRoutes)
-
+console.log(`Server is listening on port: ${server.address().port}`);
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-console.log(`Server is listening on port: ${server.address().port}`);
