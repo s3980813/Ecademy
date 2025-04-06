@@ -26,19 +26,9 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                         name="duration"
                         value={newTest.duration}
                         onChange={handleChange}
-                        placeholder="Duration in minutes"
+                        placeholder="Duration (minutes)"
                         className="mb-4 p-2 w-full border rounded"
                     />
-                    <select
-                        name="mode"
-                        value={newTest.mode}
-                        onChange={handleChange}
-                        className="mb-4 p-2 w-full border rounded"
-                    >
-                        <option value="private">Private</option>
-                        <option value="assigned">Assigned</option>
-                        <option value="public">Public</option>
-                    </select>
                     {/* You can add additional fields like student assignment here */}
                     <button
                         onClick={createTest}

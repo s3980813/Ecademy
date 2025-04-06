@@ -1,9 +1,10 @@
 import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Sidebar from "../components/Sidebar";
 
 export default function TeacherDashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [Sets, setSets] = useState([]);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -23,28 +24,11 @@ export default function TeacherDashboard() {
     fetchSets();
   }, [user._id, BACKEND_URL]);
 
-  const handleLogout = async () => {
-    await logout();
-  };
-
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#1E293B] text-white p-6 flex flex-col">
-        <h2 className="text-2xl font-bold mb-6">🎓 Ecademy</h2>
-        <nav className="flex flex-col gap-4 text-lg">
-          <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
-          <a href="/teacher-dashboard/question-set" className="hover:text-yellow-400">🧠 Question Sets</a>
-          <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Tests</a>
-        </nav>
-        <button 
-          onClick={handleLogout} 
-          className="mt-auto bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
-        >
-          Logout
-        </button>
-      </aside>
-
+      <Sidebar />
+      
       {/* Main Content */}
       <main className="flex-1 p-10 bg-background">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome, {user?.username || "Teacher"} 👋</h1>

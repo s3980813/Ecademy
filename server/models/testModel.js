@@ -3,7 +3,10 @@ import mongoose from "mongoose";
 const TestSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
-    questions: [QuestionSchema],
+    questionSetId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'QuestionSet',
+    },
     teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', required: true },
     duration: { type: Number, required: true },
     createdAt: { type: Date, default: Date.now },
@@ -17,7 +20,16 @@ const TestSchema = new mongoose.Schema({
     assignedStudentsId: [{ 
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User' 
-    }]
+    }],
+    studentResponses: [{
+        studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        answers: [{
+            questionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Question' },
+            answer: { type: String },
+        }],
+        submittedAt: { type: Date },
+        score: { type: Number },
+    }],
 });
 
 const Test = mongoose.model('Test', TestSchema);

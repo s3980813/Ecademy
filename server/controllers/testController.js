@@ -1,0 +1,71 @@
+import Test from "../models/testModel.js";
+
+// Get all tests
+export const getAllTests = async (req, res) => {
+    try {
+        const tests = await Test.find().populate("teacherId", "name email");
+        res.status(200).json(tests);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching tests", error });
+    }
+};
+
+// Get tests by teacherId
+export const getTestsByTeacher = async (req, res) => {
+    try {
+
+        const { teacherId } = req.params;
+        const tests = await Test.find({ teacherId });
+        console.log(tests);
+        if (!tests.length) return res.status(404).json({ message: "No tests found for this teacher" });
+        res.status(200).json(tests);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching tests for teacher", error });
+    }
+}
+
+// Get a single test by ID
+export const getTestById = async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id);
+        if (!test) return res.status(404).json({ message: "Test not found" });
+        res.status(200).json(test);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching test", error });
+    }
+};
+
+// Create a new test
+export const createTest = async (req, res) => {
+    try {
+        const newTest = new Test(req.body);
+        const savedTest = await newTest.save();
+        res.status(201).json(savedTest);
+    } catch (error) {
+        res.status(400).json({ message: "Error creating test", error });
+    }
+};
+
+// Update a test by ID
+export const updateTest = async (req, res) => {
+    try {
+        const updatedTest = await Test.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        if (!updatedTest) return res.status(404).json({ message: "Test not found" });
+        res.status(200).json(updatedTest);
+    } catch (error) {
+        res.status(500).json({ message: "Error updating test", error });
+    }
+}
+
+// Delete a test by ID
+export const deleteTest = async (req, res) => {
+    try {
+        const deletedTest = await Test.findByIdAndDelete(req.params.id);
+        if (!deletedTest) return res.status(404).json({ message: "Test not found" });
+        res.status(200).json({ message: "Test successfully deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting test", error });
+    }
+};
+
+

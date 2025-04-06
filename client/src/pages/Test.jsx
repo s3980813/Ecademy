@@ -1,73 +1,81 @@
 import React, { useEffect, useState } from 'react';
-import TestPopup from '../components/ui/TestPopup';
 import BackButton from '../components/ui/BackButton';
 import { useAuth } from '../hooks/useAuth';
+import axios from 'axios';
+import TestPopup from '../components/ui/TestPopup'; // You’ll need to create this
 
-export default function TestManagement() {
-    // State to manage test lists
+export default function Test() {
     const [tests, setTests] = useState([]);
-
-    // Get teacher ID from AuthContext
+    const [showPopup, setShowPopup] = useState(false);
     const { user } = useAuth();
 
-    // State to manage popup visibility and new test data
-    const [showPopup, setShowPopup] = useState(false);
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
     const [newTest, setNewTest] = useState({
         title: '',
         description: '',
-        duration: 60,
-        mode: 'private',
         teacherId: user._id,
-        assignedStudents: [], 
     });
 
-    // Function to handle popup visibility
-    const openPopup = () => setShowPopup(!showPopup);
+    // Fetch tests on mount
+    useEffect(() => {
+        const fetchTests = async () => {
+            try {
+                const res = await axios.get(`${BACKEND_URL}/tests/teacher/${user._id}`);
+                setTests(res.data);
+            } catch (err) {
+                console.error("Failed to fetch tests:", err);
+            }
+        };
+        fetchTests();
+    }, [user._id, BACKEND_URL]);
+
+    // Open/Close popup
+    const openPopup = () => setShowPopup(true);
     const closePopup = () => {
         setShowPopup(false);
-        setNewTest({
-            title: '',
-            description: '',
-            duration: 60,
-            mode: 'private',
-            teacherId: user._id,
-            assignedStudents: [],
-        });
+        setNewTest({ title: '', description: '', duration: 30, teacherId: user._id });
     };
 
-    // Function to handle input changes in the popup
+    // Handle input change
     const handleChange = (e) => {
         const { name, value } = e.target;
         setNewTest({ ...newTest, [name]: value });
     };
 
-    // Create a new test without API
-    const createTest = () => {
-        if (!newTest.title || !newTest.teacherId) {
-            alert("Enter all fields!");
+    // Create a test
+    const createTest = async () => {
+        if (!newTest.title || !newTest.duration) {
+            alert("Please fill in the title and duration.");
             return;
         }
-
-        // Update the local state with the new test
-        setTests([...tests, { ...newTest, _id: Date.now() }]);  // Using Date.now() to simulate unique ID
-        alert("Test created successfully!");
-        closePopup();
+        try {
+            const res = await axios.post(`${BACKEND_URL}/tests`, newTest);
+            setTests([...tests, res.data]);
+            closePopup();
+            alert("Test created!");
+        } catch (err) {
+            console.error("Error creating test:", err);
+        }
     };
 
-    // Delete a test without API
-    const deleteTest = (id) => {
-        // Remove the test from the local state
-        setTests(tests.filter(test => test._id !== id));
-        alert("Test deleted successfully!");
+    // Delete test
+    const deleteTest = async (id) => {
+        try {
+            await axios.delete(`${BACKEND_URL}/tests/${id}`);
+            setTests(tests.filter(test => test._id !== id));
+            alert("Test deleted!");
+        } catch (err) {
+            console.error("Error deleting test:", err);
+        }
     };
 
-    // Access a test
+    // Go to test details page
     const accessTest = (id) => {
         window.location.href = `/teacher-dashboard/test/${id}`;
     };
 
     return (
-        <>
         <div className="flex flex-col items-center w-full min-h-screen bg-background p-4">
             <div className="w-[80%] flex justify-start mb-4">
                 <BackButton />
@@ -83,7 +91,6 @@ export default function TestManagement() {
                     </button>
                 </div>
 
-                {/* Test list */}
                 <div className="mt-6 flex flex-col w-full mb-6">
                     {tests.length > 0 ? (
                         tests.map((test) => (
@@ -92,9 +99,8 @@ export default function TestManagement() {
                                 className="flex justify-between items-center p-4 border-b"
                             >
                                 <span className="font-semibold text-cardTitle text-textPrimary">{test.title}</span>
-                                <div className="flex items-center">
-                                    <p className="text-textSecondary text-body mr-6">Duration: {test.duration} minutes</p>
-                                    <p className="text-textSecondary text-body mr-6">Mode: {test.mode}</p>
+                                <div className="text-textSecondary text-body mr-4">
+                                    Duration: {test.duration} mins
                                 </div>
                                 <div>
                                     <button
@@ -118,7 +124,7 @@ export default function TestManagement() {
                 </div>
             </div>
 
-            {/* Popup for creating new test */}
+            {/* Popup for test creation */}
             <TestPopup
                 showPopup={showPopup}
                 closePopup={closePopup}
@@ -127,6 +133,5 @@ export default function TestManagement() {
                 newTest={newTest}
             />
         </div>
-        </>
     );
 }
