@@ -22,7 +22,7 @@ console.log(process.env.FRONTEND_URL);
 // CORS configuration
 const corsOptions = {
     origin: process.env.NODE_ENV === 'production' 
-        ? [process.env.FRONTEND_URL] 
+        ? [process.env.FRONTEND_URL, 'http://35.192.144.82'] 
         : ['http://localhost', 'http://localhost:80', 'http://localhost:5173'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -47,8 +47,8 @@ app.use("/api/question-sets", questionSetRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/users", userRoutes)
-console.log(`Server is listening on port: ${server.address().port}`);
-app.listen(PORT, () => {
+
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
