@@ -17,14 +17,24 @@ const PORT = process.env.PORT;
 
 // Connect to MongoDB
 connectDB();
+console.log(process.env.FRONTEND_URL);
+
+// CORS configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' 
+        ? [process.env.FRONTEND_URL] 
+        : ['http://localhost', 'http://localhost:80', 'http://localhost:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+};
 
 // Middleware
-app.use(
-    cors({
-      origin: ["http://localhost:5173"],
-      credentials: true,
-    })
-);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight for all routes
 app.use(express.json());
 app.use(cookieParser());
 
@@ -38,4 +48,6 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/users", userRoutes)
 
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
