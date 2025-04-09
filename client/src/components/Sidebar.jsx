@@ -1,7 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 
 export default function Sidebar() {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     
     const handleLogout = async () => {
         await logout();
@@ -11,9 +11,18 @@ export default function Sidebar() {
         <aside className="w-64 bg-[#1E293B] text-white p-6 flex flex-col">
         <h2 className="text-2xl font-bold mb-6">🎓 Ecademy</h2>
         <nav className="flex flex-col gap-4 text-lg">
-          <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
-          <a href="/teacher-dashboard/question-set" className="hover:text-yellow-400">🧠 Question Sets</a>
-          <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Tests</a>
+          { user.isTeacher ? (
+            <>
+            <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
+            <a href="/teacher-dashboard/question-set" className="hover:text-yellow-400">🧠 Question Sets</a>
+            <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Tests</a>
+            </> 
+          ) : (
+            <>
+            <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
+            <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Assigned Tests</a>
+            </>  
+          )}
         </nav>
         <button 
           onClick={handleLogout} 

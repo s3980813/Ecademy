@@ -13,7 +13,6 @@ export const getAllTests = async (req, res) => {
 // Get tests by teacherId
 export const getTestsByTeacher = async (req, res) => {
     try {
-
         const { teacherId } = req.params;
         const tests = await Test.find({ teacherId });
         console.log(tests);
@@ -23,6 +22,26 @@ export const getTestsByTeacher = async (req, res) => {
         res.status(500).json({ message: "Error fetching tests for teacher", error });
     }
 }
+
+// Get tests for a student
+export const getTestsByStudent = async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        
+        const tests = await Test.find({
+            assignedStudentsId: studentId,
+            status: 'published'
+        }).populate({ path: 'teacherId', select: '-password' });
+
+        if (!tests.length) {
+            return res.status(404).json({ message: "No tests found for this student" });
+        }
+
+        res.status(200).json(tests);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching tests for student", error });
+    }
+};
 
 // Get a single test by ID
 export const getTestById = async (req, res) => {

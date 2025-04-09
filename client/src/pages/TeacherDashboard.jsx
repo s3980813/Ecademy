@@ -6,16 +6,24 @@ import Sidebar from "../components/Sidebar";
 export default function TeacherDashboard() {
   const { user } = useAuth();
   const [Sets, setSets] = useState([]);
+  const [Tests, setTests] = useState([]);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchSets = async () => {
         try {
-            const response = await axios.get(`${BACKEND_URL}/question-sets/teacher/${user._id}`);
-            if (response.status === 200) {
-                setSets(response.data);
+            const SetResponse = await axios.get(`${BACKEND_URL}/question-sets/teacher/${user._id}`);
+            if (SetResponse.status === 200) {
+                setSets(SetResponse.data);
             } else {
-                console.error('Failed to fetch question sets:', response.statusText);
+                console.error('Failed to fetch question sets:', SetResponse.statusText);
+            }
+
+            const TestResponse = await axios.get(`${BACKEND_URL}/tests/teacher/${user._id}`);
+            if (TestResponse.status === 200) {
+                setTests(TestResponse.data);
+            } else {
+                console.error('Failed to fetch tests:', TestResponse.statusText);
             }
         } catch (error) {
             console.error('Error fetching question sets:', error);
@@ -58,7 +66,21 @@ export default function TeacherDashboard() {
 
           <div className="bg-card shadow-md p-6 rounded-lg">
             <h2 className="text-xl font-semibold text-gray-700">Tests Created</h2>
-            <p className="text-gray-500 mt-2">View or schedule student tests.</p>
+            <p className="text-gray-500 mt-2">Manage and edit your tests.</p>
+
+            {/* Display first 5 tests */}
+            <ul className="mt-4">
+              {Tests.slice(0, 5).map((test) => (
+                <li key={test._id} className="text-blue-500 hover:underline">
+                  <a href={`/teacher-dashboard/test/${test._id}`}>
+                    <div className="flex items-center justify-between p-2 border border-gray-200">
+                      <p className="font-semibold">{test.title}</p>
+                      <p className="text-gray-600 text-sm">Duration: {test.duration} mins</p>
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="bg-card shadow-md p-6 rounded-lg">
