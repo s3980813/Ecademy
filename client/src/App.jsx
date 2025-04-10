@@ -10,6 +10,7 @@ import "./App.css";
 import Test from "./pages/Test";
 import TestDetail from "./pages/TestDetail";
 import StudentDashboard from "./pages/StudentDashboard";
+import TakeQuiz from "./pages/TakeQuiz";
 export default function App() {
     return (
         <>
@@ -29,6 +30,8 @@ export default function App() {
                 <Route path="/teacher-dashboard/question-set/:id" element={<ProtectedRoutes isTeacher={true}><QuestionSetDetail /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/test" element={<ProtectedRoutes isTeacher={true}><Test /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/test/:id" element={<ProtectedRoutes isTeacher={true}><TestDetail /></ProtectedRoutes>} />
+                
+                <Route path="/student-dashboard/take-quiz/:id" element={<ProtectedRoutes isTeacher={false}><TakeQuiz /></ProtectedRoutes>} />
                 <Route path="/student-dashboard" element={<ProtectedRoutes isTeacher={false}><StudentDashboard /></ProtectedRoutes>} />
                 <Route path="*" element={<div className="flex justify-center items-center h-screen">404 Not Found</div>} />
             </Routes>
