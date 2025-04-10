@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllTests, getTestsByTeacher, getTestsByStudent, getTestById, createTest, deleteTest, updateTest } from '../controllers/testController.js';
+import { getAllTests, getTestsByTeacher, getTestsByStudent, getTestById, createTest, deleteTest, updateTest, getQuestionsForTest } from '../controllers/testController.js';
 const router = express.Router();
 
 // Route to get all tests
@@ -13,6 +13,9 @@ router.get('/student/:studentId', getTestsByStudent);
 
 // Route to get a test by its ID
 router.get('/:id', getTestById);
+
+// Route to get questions for a test
+router.get('/:id/questions', getQuestionsForTest);
 
 // Route to create a new test
 router.post('/', createTest);

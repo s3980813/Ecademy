@@ -19,18 +19,19 @@ const __dirname = path.dirname(__filename);
 // Load environment variables and create an express app
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 3001;
 
 // Connect to MongoDB
 connectDB();
 
 // Middleware
 app.use(
-    cors({
-      origin: true, // Allow all origins in production
-      credentials: true,
-    })
-);
+  cors({
+    origin: process.env.FRONTEND_URL || "http://35.192.144.82",
+    credentials: true,
+  })
+)
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -43,13 +44,5 @@ app.use("/api/tests", testRoutes);
 app.use("/api/test-results", testResultRoutes);
 app.use("/api/users", userRoutes);
 
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Handle client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+app.listen(PORT,'0.0.0.0', () => console.log(`✅ Server running on port ${PORT}`));
 

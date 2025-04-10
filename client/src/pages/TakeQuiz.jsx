@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const sampleQuiz = [
   {
@@ -37,6 +39,7 @@ export default function TakeQUiz() {
   const [countdown, setCountdown] = useState(TOTAL_TIME_SECONDS);
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const testId = useParams();
 
   const formatTime = (seconds) => {
     const min = Math.floor(seconds / 60)
@@ -47,6 +50,12 @@ export default function TakeQUiz() {
   };
 
   useEffect(() => {
+    const fetchTest = async () => {
+      console.log(testId);
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/tests/${testId.id}/questions`);
+      console.log(response.data);
+    };
+    fetchTest();
     if (isFinished) return;
     const timer = setInterval(() => {
       setCountdown((prev) => {

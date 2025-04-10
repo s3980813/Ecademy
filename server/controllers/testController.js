@@ -1,4 +1,5 @@
 import Test from "../models/testModel.js";
+import Question from "../models/questionModel.js";
 
 // Get all tests
 export const getAllTests = async (req, res) => {
@@ -54,6 +55,17 @@ export const getTestById = async (req, res) => {
     }
 };
 
+// Retrieve questions for a test
+export const getQuestionsForTest = async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id);
+        if (!test) return res.status(404).json({ message: "Test not found" });
+        const questions = await Question.find({ questionSetId: test.questionSetId });
+        res.status(200).json(questions);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching questions for test", error });
+    }
+}
 // Create a new test
 export const createTest = async (req, res) => {
     try {

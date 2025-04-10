@@ -49,7 +49,7 @@ export default function StudentDashboard() {
     }, [user._id, BACKEND_URL]);
 
     const startTest = (testId) => {
-        window.location.href = `/student-dashboard/test/${testId}`;
+        window.location.href = `/student-dashboard/take-quiz/${testId}`;
     };
 
     const formatDate = (dateString) => {
