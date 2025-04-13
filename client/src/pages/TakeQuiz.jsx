@@ -1,62 +1,103 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import QuizTimer from "../components/quiz/QuizTimer";
+import QuizQuestion from "../components/quiz/QuizQuestion";
+import QuizNavigation from "../components/quiz/QuizNavigation";
+import QuizResults from "../components/quiz/QuizResults";
 
-const sampleQuiz = [
-  {
-    question: "What does HTML stand for?",
-    options: [
-      "Hyper Trainer Marking Language",
-      "HyperText Markup Language",
-      "HyperText Markdown Language",
-      "HyperText Making Line",
-    ],
-    answer: 1,
-  },
-  {
-    question: "Which company developed React?",
-    options: ["Google", "Microsoft", "Facebook", "Netflix"],
-    answer: 2,
-  },
-  {
-    question: "What is Tailwind CSS?",
-    options: [
-      "A preprocessor",
-      "A UI framework",
-      "A utility-first CSS framework",
-      "A CSS-in-JS library",
-    ],
-    answer: 2,
-  },
-];
-
-// Thời gian làm bài tính theo giây
-const TOTAL_TIME_SECONDS = 60;
-
-export default function TakeQUiz() {
+export default function TakeQuiz() {
   const [current, setCurrent] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [countdown, setCountdown] = useState(TOTAL_TIME_SECONDS);
+  const [countdown, setCountdown] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [score, setScore] = useState(0);
-  const testId = useParams();
-
-  const formatTime = (seconds) => {
-    const min = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
-    const sec = (seconds % 60).toString().padStart(2, "0");
-    return `${min}:${sec}`;
-  };
+  const [questions, setQuestions] = useState([]);
+  const [test, setTest] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { id } = useParams();
 
   useEffect(() => {
     const fetchTest = async () => {
-      console.log(testId);
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/tests/${testId.id}/questions`);
-      console.log(response.data);
+      try {
+        setLoading(true);
+        // Fetch test details
+        const testResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/tests/${id}`);
+        const testData = testResponse.data;
+        console.log('Test Data:', testData);
+        setTest(testData);
+        setCountdown(testData.duration * 60);
+
+        // Fetch questions for the question set
+        const questionsResponse = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/questions`,
+          {
+            params: {
+              questionSetId: testData.questionSetId
+            }
+          }
+        );
+        const allQuestions = questionsResponse.data;
+        console.log('All Questions:', allQuestions);
+
+        // Filter questions by difficulty
+        const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy');
+        const mediumQuestions = allQuestions.filter(q => q.difficulty === 'medium');
+        const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
+
+        console.log('Filtered Questions:', {
+          easy: easyQuestions.length,
+          medium: mediumQuestions.length,
+          hard: hardQuestions.length
+        });
+
+        // Get question counts from test data
+        const easyCount = testData.easy || 0;
+        const mediumCount = testData.medium || 0;
+        const hardCount = testData.hard || 0;
+
+        console.log('Question Counts:', {
+          easy: easyCount,
+          medium: mediumCount,
+          hard: hardCount
+        });
+
+        // Randomly select questions based on distribution
+        const selectedQuestions = [
+          ...getRandomQuestions(easyQuestions, easyCount),
+          ...getRandomQuestions(mediumQuestions, mediumCount),
+          ...getRandomQuestions(hardQuestions, hardCount)
+        ];
+
+        console.log('Selected Questions:', selectedQuestions);
+
+        // Shuffle all selected questions
+        const shuffledQuestions = shuffleArray(selectedQuestions);
+        setQuestions(shuffledQuestions);
+      } catch (err) {
+        console.error('Error fetching test:', err);
+        setError(err.response?.data?.message || 'Failed to load test');
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchTest();
-    if (isFinished) return;
+  }, [id]);
+
+  const getRandomQuestions = (questions, count) => {
+    if (!questions.length || count <= 0) return [];
+    const shuffled = [...questions].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(count, questions.length));
+  };
+
+  const shuffleArray = (array) => {
+    return [...array].sort(() => 0.5 - Math.random());
+  };
+
+  useEffect(() => {
+    if (isFinished || !countdown) return;
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev === 1) {
@@ -67,15 +108,15 @@ export default function TakeQUiz() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isFinished]);
+  }, [isFinished, countdown]);
 
-  const selectAnswer = (index) => {
+  const selectAnswer = (optionKey) => {
     if (isFinished) return;
-    setSelectedAnswers({ ...selectedAnswers, [current]: index });
+    setSelectedAnswers({ ...selectedAnswers, [current]: optionKey });
   };
 
   const nextQuestion = () => {
-    if (current < sampleQuiz.length - 1) {
+    if (current < questions.length - 1) {
       setCurrent((prev) => prev + 1);
     }
   };
@@ -86,115 +127,109 @@ export default function TakeQUiz() {
     }
   };
 
-  const submitQuiz = () => {
-    let totalScore = 0;
-    sampleQuiz.forEach((q, i) => {
-      if (selectedAnswers[i] === q.answer) totalScore += 1;
-    });
-    setScore(totalScore);
-    setIsFinished(true);
+  const submitQuiz = async () => {
+    try {
+      let totalScore = 0;
+      const answers = questions.map((q, i) => ({
+        questionId: q._id,
+        selectedAnswer: selectedAnswers[i] || null // Use null if no answer selected
+      }));
+      console.log('Answers:', answers);
+
+      // Calculate score
+      questions.forEach((q, i) => {
+        if (selectedAnswers[i] === q.correctAnswer) totalScore += 1;
+      });
+
+      // Submit test attempt
+      // await axios.post(`${import.meta.env.VITE_BACKEND_URL}/test-attempts`, {
+      //   testId: id,
+      //   answers,
+      //   score: (totalScore / questions.length) * 100
+      // });
+
+      setScore(totalScore);
+      setIsFinished(true);
+    } catch (err) {
+      console.error('Error submitting test:', err);
+      setError('Failed to submit test. Please try again.');
+    }
   };
 
   const resetQuiz = () => {
     setCurrent(0);
     setSelectedAnswers({});
-    setCountdown(TOTAL_TIME_SECONDS);
+    setCountdown(test.duration * 60);
     setIsFinished(false);
     setScore(0);
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-rose-100 to-indigo-200 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading test...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-rose-100 to-indigo-200 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 text-lg">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questions.length) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-rose-100 to-indigo-200 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 text-lg">No questions available for this test.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-100 to-indigo-200 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-xl w-full text-gray-800">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold">
-            Question {current + 1} / {sampleQuiz.length}
-          </h2>
-          <div className={`text-sm font-semibold text-red-600 ${isFinished ? 'opacity-0' : 'opacity-100'}`}>
-            ⏳ {formatTime(countdown)}
-          </div>
-        </div>
-
+        <QuizTimer countdown={countdown} isFinished={isFinished} />
         {!isFinished ? (
           <>
-            <p className="text-lg font-medium mb-4">
-              {sampleQuiz[current].question}
-            </p>
-            <ul className="space-y-3 mb-6">
-            {sampleQuiz[current].options.map((opt, i) => {
-                const isCorrect = sampleQuiz[current].answer === i;
-                const isSelected = selectedAnswers[current] === i;
-
-                let optionStyle = "hover:bg-indigo-50 border-gray-300";
-                if (isFinished) {
-                if (isCorrect) {
-                    optionStyle = "bg-green-100 border-green-400";
-                } else if (isSelected && !isCorrect) {
-                    optionStyle = "bg-red-100 border-red-400";
-                }
-                } else if (isSelected) {
-                optionStyle =
-                    "bg-indigo-100 border-indigo-400 ring-2 ring-indigo-300";
-                }
-
-                return (
-                <li
-                    key={i}
-                    onClick={() => !isFinished && selectAnswer(i)}
-                    className={`px-4 py-3 rounded-xl border cursor-pointer transition-all ${optionStyle}`}
-                >
-                    {opt}
-                </li>
-                );
-            })}
-            </ul>
-
-
-            <div className="flex justify-between">
-              <button
-                onClick={prevQuestion}
-                disabled={current === 0}
-                className={`px-4 py-2 rounded-lg font-medium ${
-                  current === 0
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                ← Back
-              </button>
-              {current === sampleQuiz.length - 1 ? (
-                <button
-                  onClick={submitQuiz}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                >
-                  Submit ✅
-                </button>
-              ) : (
-                <button
-                  onClick={nextQuestion}
-                  className="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600"
-                >
-                  Next →
-                </button>
-              )}
-            </div>
+            <QuizQuestion
+              question={questions[current]}
+              selectedAnswer={selectedAnswers[current]}
+              isFinished={isFinished}
+              onSelectAnswer={selectAnswer}
+              currentIndex={current}
+              totalQuestions={questions.length}
+            />
+            <QuizNavigation
+              current={current}
+              totalQuestions={questions.length}
+              onPrev={prevQuestion}
+              onNext={nextQuestion}
+              onSubmit={submitQuiz}
+              isFinished={isFinished}
+            />
           </>
         ) : (
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">🎉 Quiz Complete!</h2>
-            <p className="text-lg mb-6">
-              You scored{" "}
-              <span className="font-bold text-indigo-600">
-                {score}/{sampleQuiz.length}
-              </span>
-            </p>
-            <button
-              onClick={resetQuiz}
-              className="px-5 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-            >
-              Retry 🔁
-            </button>
-          </div>
+          <QuizResults
+            score={score}
+            totalQuestions={questions.length}
+            onRetry={resetQuiz}
+          />
         )}
       </div>
     </div>

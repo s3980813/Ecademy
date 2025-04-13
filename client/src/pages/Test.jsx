@@ -44,7 +44,22 @@ export default function Test() {
     };
 
     // Create a test
-    const createTest = async () => {
+            const createTest = async () => {
+                const total =
+            parseInt(newTest.easy || 0) +
+            parseInt(newTest.medium || 0) +
+            parseInt(newTest.hard || 0);
+
+        if (total > parseInt(newTest.totalQuestions)) {
+            alert("❌ Total of Easy + Medium + Hard exceeds total questions.");
+            return;
+        }
+
+        if (total < parseInt(newTest.totalQuestions)) {
+            alert("⚠️ Make sure all questions are allocated (Easy + Medium + Hard = Total Questions)");
+            return;
+        }
+        
         if (!newTest.title || !newTest.duration) {
             alert("Please fill in the title and duration.");
             return;

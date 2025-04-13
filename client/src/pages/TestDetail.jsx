@@ -16,6 +16,12 @@ export default function TestDetail() {
     const [assignedStudents, setAssignedStudents] = useState([]);
     const [error, setError] = useState("");
     const [searchType, setSearchType] = useState("username"); // "username" or "email"
+    const [tempDistribution, setTempDistribution] = useState({
+        totalQuestions: 0,
+        easy: 0,
+        medium: 0,
+        hard: 0
+    });
 
     // Fetch test and question sets when component mounts
     useEffect(() => {
@@ -53,6 +59,18 @@ export default function TestDetail() {
 
         fetchData();
     }, [id, BACKEND_URL, user._id]);
+
+    // Add this after the existing useEffect
+    useEffect(() => {
+        if (test) {
+            setTempDistribution({
+                totalQuestions: test.totalQuestions || 0,
+                easy: test.easy || 0,
+                medium: test.medium || 0,
+                hard: test.hard || 0
+            });
+        }
+    }, [test]);
 
     // Handle updating test with question set
     const handleSetSelect = async (setId) => {
@@ -226,6 +244,90 @@ export default function TestDetail() {
         } catch (error) {
             console.error("Error canceling publish:", error);
             alert("Failed to cancel publish. Please try again.");
+        }
+    };
+
+    // Update the handleDistributionChange function
+    const handleDistributionChange = (field, value) => {
+        if (test.status === 'published') {
+            alert("Cannot modify question distribution while test is published");
+            return;
+        }
+
+        const newValue = parseInt(value) || 0;
+        setTempDistribution(prev => ({
+            ...prev,
+            [field]: newValue
+        }));
+    };
+
+    // Add this function after other handler functions
+    const validateQuestionSetCapacity = () => {
+        if (!test.questionSetId) {
+            alert("Please select a question set first");
+            return false;
+        }
+
+        const selectedSet = questionSets.find(set => set._id === test.questionSetId);
+        if (!selectedSet) {
+            alert("Selected question set not found");
+            return false;
+        }
+
+        // Check if the question set has enough questions of each difficulty
+        if (tempDistribution.easy > selectedSet.easy) {
+            alert(`Not enough easy questions in the selected set. Available: ${selectedSet.easy}`);
+            return false;
+        }
+        if (tempDistribution.medium > selectedSet.medium) {
+            alert(`Not enough medium questions in the selected set. Available: ${selectedSet.medium}`);
+            return false;
+        }
+        if (tempDistribution.hard > selectedSet.hard) {
+            alert(`Not enough hard questions in the selected set. Available: ${selectedSet.hard}`);
+            return false;
+        }
+
+        return true;
+    };
+
+    // Update the handleConfirmDistribution function
+    const handleConfirmDistribution = async () => {
+        // Validate total questions
+        const total = tempDistribution.easy + tempDistribution.medium + tempDistribution.hard;
+        if (total !== tempDistribution.totalQuestions) {
+            alert("Sum of easy, medium, and hard questions must equal total questions");
+            return;
+        }
+
+        // Validate question set capacity
+        if (!validateQuestionSetCapacity()) {
+            return;
+        }
+
+        try {
+            const response = await axios.put(`${BACKEND_URL}/tests/${id}`, {
+                totalQuestions: tempDistribution.totalQuestions,
+                easy: tempDistribution.easy,
+                medium: tempDistribution.medium,
+                hard: tempDistribution.hard
+            }, {
+                withCredentials: true
+            });
+
+            if (response.status === 200) {
+                setTest(prev => ({
+                    ...prev,
+                    totalQuestions: tempDistribution.totalQuestions,
+                    easy: tempDistribution.easy,
+                    medium: tempDistribution.medium,
+                    hard: tempDistribution.hard
+                }));
+                alert("Question distribution updated successfully!");
+            }
+        } catch (error) {
+            console.error("Error updating question distribution:", error);
+            alert("Failed to update question distribution. Please try again.");
         }
     };
 
@@ -432,6 +534,98 @@ export default function TestDetail() {
                             Question set cannot be changed while the test is published.
                         </p>
                     )}
+                </div>
+
+                {/* Question Distribution */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold mb-4">Question Distribution</h2>
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Total Questions
+                                </label>
+                                <input
+                                    type="number"
+                                    value={tempDistribution.totalQuestions}
+                                    onChange={(e) => handleDistributionChange('totalQuestions', e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    disabled={test.status === 'published'}
+                                    min="0"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Easy Questions
+                                </label>
+                                <input
+                                    type="number"
+                                    value={tempDistribution.easy}
+                                    onChange={(e) => handleDistributionChange('easy', e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    disabled={test.status === 'published'}
+                                    min="0"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Medium Questions
+                                </label>
+                                <input
+                                    type="number"
+                                    value={tempDistribution.medium}
+                                    onChange={(e) => handleDistributionChange('medium', e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    disabled={test.status === 'published'}
+                                    min="0"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Hard Questions
+                                </label>
+                                <input
+                                    type="number"
+                                    value={tempDistribution.hard}
+                                    onChange={(e) => handleDistributionChange('hard', e.target.value)}
+                                    className="w-full p-2 border rounded-md"
+                                    disabled={test.status === 'published'}
+                                    min="0"
+                                />
+                            </div>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-md">
+                            <h3 className="text-sm font-medium text-gray-700 mb-2">Current Distribution</h3>
+                            <div className="grid grid-cols-4 gap-4 text-center">
+                                <div>
+                                    <p className="text-2xl font-bold text-gray-900">{tempDistribution.totalQuestions}</p>
+                                    <p className="text-sm text-gray-500">Total</p>
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold text-green-600">{tempDistribution.easy}</p>
+                                    <p className="text-sm text-gray-500">Easy</p>
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold text-yellow-600">{tempDistribution.medium}</p>
+                                    <p className="text-sm text-gray-500">Medium</p>
+                                </div>
+                                <div>
+                                    <p className="text-2xl font-bold text-red-600">{tempDistribution.hard}</p>
+                                    <p className="text-sm text-gray-500">Hard</p>
+                                </div>
+                            </div>
+                        </div>
+                        {test.status !== 'published' && (
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    onClick={handleConfirmDistribution}
+                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
+                                >
+                                    Confirm Changes
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
