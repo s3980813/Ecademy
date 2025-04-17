@@ -33,7 +33,8 @@ export default function TestDetail() {
                 });
                 if (testResponse.status === 200) {
                     setTest(testResponse.data);
-                    if (testResponse.data.assignedStudentsId) {
+                    console.log(testResponse.data.assignedStudentsId.length > 0);
+                    if (testResponse.data.assignedStudentsId.length > 0) {
                         // Fetch assigned students details
                         const studentsResponse = await axios.get(`${BACKEND_URL}/users/students`, {
                             params: { ids: testResponse.data.assignedStudentsId },
@@ -77,11 +78,11 @@ export default function TestDetail() {
         try {
             // If setId is empty string, we're removing the set
             const updateData = setId ? { questionSetId: setId } : { questionSetId: null };
-            
+
             const response = await axios.put(`${BACKEND_URL}/tests/${id}`, updateData, {
                 withCredentials: true
             });
-            
+
             if (response.status === 200) {
                 setTest(prev => ({ ...prev, questionSetId: setId || null }));
                 alert(setId ? "Test updated with question set successfully!" : "Question set removed successfully!");
@@ -121,22 +122,22 @@ export default function TestDetail() {
     const handleAddStudent = async (e) => {
         e.preventDefault();
         setError("");
-        
+
         try {
             // Find student by username or email
             const studentResponse = await axios.get(`${BACKEND_URL}/users/find`, {
-                params: { 
+                params: {
                     [searchType]: identifier,
-                    isTeacher: false 
+                    isTeacher: false
                 },
                 withCredentials: true
             });
 
             console.log(studentResponse);
-            
+
             if (studentResponse.status === 200) {
                 const student = studentResponse.data;
-                
+
                 // Check if student is already assigned
                 if (assignedStudents.some(s => s._id === student._id)) {
                     setError("This student is already assigned to the test.");
@@ -149,7 +150,7 @@ export default function TestDetail() {
                 }, {
                     withCredentials: true
                 });
-                
+
                 if (response.status === 200) {
                     setTest(prev => ({
                         ...prev,
@@ -181,7 +182,7 @@ export default function TestDetail() {
             }, {
                 withCredentials: true
             });
-            
+
             if (response.status === 200) {
                 setTest(prev => ({
                     ...prev,
@@ -386,31 +387,28 @@ export default function TestDetail() {
                     <div className="flex gap-4">
                         <button
                             onClick={() => handleModeChange('public')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'public' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
+                            className={`px-4 py-2 rounded-md ${test.mode === 'public'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
                         >
                             Public
                         </button>
                         <button
                             onClick={() => handleModeChange('assigned')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'assigned' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
+                            className={`px-4 py-2 rounded-md ${test.mode === 'assigned'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
                         >
                             Assigned
                         </button>
                         <button
                             onClick={() => handleModeChange('private')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'private' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
+                            className={`px-4 py-2 rounded-md ${test.mode === 'private'
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                }`}
                         >
                             Private
                         </button>
@@ -444,7 +442,7 @@ export default function TestDetail() {
                     {test.mode === 'assigned' && (
                         <div className="mt-4 p-4 bg-gray-100 rounded-lg">
                             <h3 className="font-semibold mb-4">Assigned Students</h3>
-                            
+
                             {/* Add student form */}
                             <form onSubmit={handleAddStudent} className="mb-4">
                                 <div className="flex gap-2 mb-2">
