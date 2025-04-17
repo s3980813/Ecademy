@@ -15,7 +15,7 @@ export default function TestDetail() {
     const [identifier, setIdentifier] = useState("");
     const [assignedStudents, setAssignedStudents] = useState([]);
     const [error, setError] = useState("");
-    const [searchType, setSearchType] = useState("username"); // "username" or "email"
+    const [searchType, setSearchType] = useState("username");
     const [tempDistribution, setTempDistribution] = useState({
         totalQuestions: 0,
         easy: 0,
@@ -96,11 +96,23 @@ export default function TestDetail() {
     // Handle updating test mode
     const handleModeChange = async (mode) => {
         try {
-            const response = await axios.put(`${BACKEND_URL}/tests/${id}`, {
-                mode: mode
-            }, {
-                withCredentials: true
-            });
+            let response
+            if (mode == "assigned") {
+                response = await axios.put(`${BACKEND_URL}/tests/${id}`, {
+                    mode: mode
+                }, {
+                    withCredentials: true
+                });
+            } else {
+                setAssignedStudents([]);
+                response = await axios.put(`${BACKEND_URL}/tests/${id}`, {
+                    mode: mode,
+                    assignedStudentsId: []
+                }, {
+                    withCredentials: true
+                });
+            }
+
             if (response.status === 200) {
                 setTest(prev => ({ ...prev, mode: mode }));
                 alert("Test mode updated successfully!");
