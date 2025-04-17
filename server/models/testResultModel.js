@@ -11,19 +11,7 @@ const testResultSchema = new mongoose.Schema({
         ref: 'Test',
         required: true
     },
-    testTitle: {
-        type: String,
-        required: true
-    },
     score: {
-        type: Number,
-        required: true
-    },
-    totalQuestions: {
-        type: Number,
-        required: true
-    },
-    correctAnswers: {
         type: Number,
         required: true
     },
@@ -33,14 +21,10 @@ const testResultSchema = new mongoose.Schema({
             ref: 'Question',
             required: true
         },
-        selectedOption: {
+        selectedAnswer: {
             type: String,
             required: true
         },
-        isCorrect: {
-            type: Boolean,
-            required: true
-        }
     }],
     completedAt: {
         type: Date,

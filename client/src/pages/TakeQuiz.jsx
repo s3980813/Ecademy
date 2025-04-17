@@ -5,6 +5,7 @@ import QuizTimer from "../components/quiz/QuizTimer";
 import QuizQuestion from "../components/quiz/QuizQuestion";
 import QuizNavigation from "../components/quiz/QuizNavigation";
 import QuizResults from "../components/quiz/QuizResults";
+import { useAuth } from "../hooks/useAuth";
 
 export default function TakeQuiz() {
   const [current, setCurrent] = useState(0);
@@ -17,6 +18,7 @@ export default function TakeQuiz() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -141,12 +143,13 @@ export default function TakeQuiz() {
         if (selectedAnswers[i] === q.correctAnswer) totalScore += 1;
       });
 
-      // Submit test attempt
-      // await axios.post(`${import.meta.env.VITE_BACKEND_URL}/test-attempts`, {
-      //   testId: id,
-      //   answers,
-      //   score: (totalScore / questions.length) * 100
-      // });
+      //Submit test attempt
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/test-results/submit`, {
+        studentId: user._id, // Assuming you store user ID in local storage
+        testId: id,
+        answers,
+        score: (totalScore / questions.length) * 100
+      });
 
       setScore(totalScore);
       setIsFinished(true);
