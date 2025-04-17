@@ -33,7 +33,7 @@ export default function TestDetail() {
                 });
                 if (testResponse.status === 200) {
                     setTest(testResponse.data);
-                    if (testResponse.data.assignedStudentsId) {
+                    if (testResponse.data.assignedStudentsId && testResponse.data.assignedStudentsId.length > 0) {
                         // Fetch assigned students details
                         const studentsResponse = await axios.get(`${BACKEND_URL}/users/students`, {
                             params: { ids: testResponse.data.assignedStudentsId },
@@ -42,6 +42,8 @@ export default function TestDetail() {
                         if (studentsResponse.status === 200) {
                             setAssignedStudents(studentsResponse.data);
                         }
+                    } else {
+                        setAssignedStudents([]); // Handle case where assignedStudentsId is an empty array
                     }
                 }
 
@@ -630,4 +632,4 @@ export default function TestDetail() {
             </div>
         </div>
     );
-} 
+}
