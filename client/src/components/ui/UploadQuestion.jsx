@@ -119,36 +119,34 @@ export default function UploadQuestions({ newSet, BACKEND_URL, setQuestions }) {
                 <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-3xl">
                         <h2 className="text-xl font-semibold mb-4">Review Questions</h2>
-                        <div className="overflow-y-auto max-h-96"> {/* Added scrollable container */}
-                            <table className="w-full border-collapse border mb-4">
-                                <thead>
-                                    <tr className="bg-gray-200">
-                                        <th className="border p-2">#</th>
-                                        <th className="border p-2">Question</th>
-                                        <th className="border p-2">A</th>
-                                        <th className="border p-2">B</th>
-                                        <th className="border p-2">C</th>
-                                        <th className="border p-2">D</th>
-                                        <th className="border p-2">Answer</th>
-                                        <th className="border p-2">Difficulty</th>
+                        <table className="w-full border-collapse border mb-4">
+                            <thead>
+                                <tr className="bg-gray-200">
+                                    <th className="border p-2">#</th>
+                                    <th className="border p-2">Question</th>
+                                    <th className="border p-2">A</th>
+                                    <th className="border p-2">B</th>
+                                    <th className="border p-2">C</th>
+                                    <th className="border p-2">D</th>
+                                    <th className="border p-2">Answer</th>
+                                    <th className="border p-2">Difficulty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {previewQuestions.map((q, index) => (
+                                    <tr key={index} className="text-center">
+                                        <td className="border p-2">{q.id}</td>
+                                        <td className="border p-2">{q.text}</td>
+                                        <td className="border p-2">{q.options.A}</td>
+                                        <td className="border p-2">{q.options.B}</td>
+                                        <td className="border p-2">{q.options.C}</td>
+                                        <td className="border p-2">{q.options.D}</td>
+                                        <td className="border p-2">{q.correctAnswer}</td>
+                                        <td className="border p-2 capitalize">{q.difficulty}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {previewQuestions.map((q, index) => (
-                                        <tr key={index} className="text-center">
-                                            <td className="border p-2">{q.id}</td>
-                                            <td className="border p-2">{q.text}</td>
-                                            <td className="border p-2">{q.options.A}</td>
-                                            <td className="border p-2">{q.options.B}</td>
-                                            <td className="border p-2">{q.options.C}</td>
-                                            <td className="border p-2">{q.options.D}</td>
-                                            <td className="border p-2">{q.correctAnswer}</td>
-                                            <td className="border p-2 capitalize">{q.difficulty}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                ))}
+                            </tbody>
+                        </table>
 
                         {/* Upload Button */}
                         <div className="flex justify-between">
@@ -166,6 +164,7 @@ export default function UploadQuestions({ newSet, BACKEND_URL, setQuestions }) {
                                 Close Preview
                             </button>
 
+                            
                         </div>
                     </div>
                 </div>
