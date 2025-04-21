@@ -26,6 +26,10 @@ const testResultSchema = new mongoose.Schema({
             required: true
         },
     }],
+    trueAnswer: {
+        type: Number,
+        required: true
+    },
     completedAt: {
         type: Date,
         default: Date.now

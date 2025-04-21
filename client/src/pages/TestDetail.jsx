@@ -1,11 +1,16 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BackButton from "../components/ui/BackButton.jsx";
 import { useAuth } from "../hooks/useAuth";
+import TestHeader from '../components/teacher/TestHeader';
+import TestMode from '../components/teacher/TestMode';
+import AssignedStudents from '../components/teacher/AssignedStudents';
+import QuestionDistribution from '../components/teacher/QuestionDistribution';
 
 export default function TestDetail() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
     const { user } = useAuth();
 
@@ -79,6 +84,43 @@ export default function TestDetail() {
         try {
             // If setId is empty string, we're removing the set
             const updateData = setId ? { questionSetId: setId } : { questionSetId: null };
+
+            // Fetch questions for the question set
+            const questionsResponse = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/questions`,
+                {
+                params: {
+                    questionSetId: setId
+                }
+                }
+            );
+            const allQuestions = questionsResponse.data;
+            console.log('All Questions:', allQuestions);
+    
+            // Filter questions by difficulty
+            const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy');
+            const mediumQuestions = allQuestions.filter(q => q.difficulty === 'medium');
+            const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
+
+            // If the question set do not contain enough questions, alert the user
+            if (easyQuestions.length < tempDistribution.easy) {
+                alert(`Not enough easy questions in the selected set. Available: ${easyQuestions.length}`);
+                return;
+            }
+            if (mediumQuestions.length < tempDistribution.medium) {
+                alert(`Not enough medium questions in the selected set. Available: ${mediumQuestions.length}`);
+                return;
+            }
+            if (hardQuestions.length < tempDistribution.hard) {
+                alert(`Not enough hard questions in the selected set. Available: ${hardQuestions.length}`);
+                return;
+            }
+    
+            console.log('Filtered Questions:', {
+                easy: easyQuestions.length,
+                medium: mediumQuestions.length,
+                hard: hardQuestions.length
+            });
             
             const response = await axios.put(`${BACKEND_URL}/tests/${id}`, updateData, {
                 withCredentials: true
@@ -333,174 +375,44 @@ export default function TestDetail() {
         }
     };
 
+    const handleViewResults = () => {
+        navigate(`/tests/${id}/results`);
+    };
+
     if (!test) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="flex flex-col items-center w-full min-h-screen bg-background p-4">
-            {/* Back button */}
             <div className="w-[80%] flex justify-start mb-4">
                 <BackButton />
             </div>
 
-            {/* Test details container */}
             <div className="w-[80%] bg-card shadow-lg rounded-lg p-8">
-                {/* Test header */}
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold text-primary">{test.title}</h1>
-                    <div className="flex gap-2">
-                        {test.status === 'draft' && (
-                            <button
-                                onClick={handlePublish}
-                                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                            >
-                                Publish Test
-                            </button>
-                        )}
-                        {test.status === 'published' && (
-                            <>
-                                <span className="px-4 py-2 bg-blue-500 text-white rounded-md">
-                                    Published
-                                </span>
-                                <button
-                                    onClick={handleCancelPublish}
-                                    className="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600"
-                                >
-                                    Cancel Publish
-                                </button>
-                            </>
-                        )}
-                    </div>
-                </div>
+                <TestHeader test={test} handlePublish={handlePublish} handleCancelPublish={handleCancelPublish} />
 
-                {/* Test description */}
                 <p className="text-gray-600 mb-6">{test.description}</p>
-
-                {/* Test duration */}
                 <div className="mb-6">
                     <span className="font-semibold">Duration:</span> {test.duration} minutes
                 </div>
 
-                {/* Test Mode Selection */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Test Mode</h2>
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => handleModeChange('public')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'public' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                            Public
-                        </button>
-                        <button
-                            onClick={() => handleModeChange('assigned')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'assigned' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                            Assigned
-                        </button>
-                        <button
-                            onClick={() => handleModeChange('private')}
-                            className={`px-4 py-2 rounded-md ${
-                                test.mode === 'private' 
-                                    ? 'bg-blue-500 text-white' 
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                            }`}
-                        >
-                            Private
-                        </button>
-                    </div>
-                    <p className="mt-2 text-sm text-gray-600">
-                        {test.mode === 'public' && "All students can access this test"}
-                        {test.mode === 'assigned' && "Only assigned students can access this test"}
-                        {test.mode === 'private' && "This test is private and not accessible to students"}
-                    </p>
+                <TestMode test={test} handleModeChange={handleModeChange} copyTestId={copyTestId} copied={copied} id={id} />
 
-                    {/* Test ID for private mode */}
-                    {test.mode === 'private' && (
-                        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                            <h3 className="font-semibold mb-2">Test Access Code</h3>
-                            <div className="flex items-center gap-2">
-                                <code className="p-2 bg-white rounded border flex-1">{id}</code>
-                                <button
-                                    onClick={copyTestId}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                >
-                                    {copied ? 'Copied!' : 'Copy'}
-                                </button>
-                            </div>
-                            <p className="mt-2 text-sm text-gray-600">
-                                Share this code with students to allow them to access this test.
-                            </p>
-                        </div>
-                    )}
+                {test.mode === 'assigned' && (
+                    <AssignedStudents
+                        test={test}
+                        assignedStudents={assignedStudents}
+                        handleAddStudent={handleAddStudent}
+                        handleRemoveStudent={handleRemoveStudent}
+                        searchType={searchType}
+                        setSearchType={setSearchType}
+                        identifier={identifier}
+                        setIdentifier={setIdentifier}
+                        error={error}
+                    />
+                )}
 
-                    {/* Assigned students for assigned mode */}
-                    {test.mode === 'assigned' && (
-                        <div className="mt-4 p-4 bg-gray-100 rounded-lg">
-                            <h3 className="font-semibold mb-4">Assigned Students</h3>
-                            
-                            {/* Add student form */}
-                            <form onSubmit={handleAddStudent} className="mb-4">
-                                <div className="flex gap-2 mb-2">
-                                    <select
-                                        value={searchType}
-                                        onChange={(e) => setSearchType(e.target.value)}
-                                        className="p-2 border rounded-md"
-                                    >
-                                        <option value="username">Username</option>
-                                        <option value="email">Email</option>
-                                    </select>
-                                    <input
-                                        type={searchType === "email" ? "email" : "text"}
-                                        value={identifier}
-                                        onChange={(e) => setIdentifier(e.target.value)}
-                                        placeholder={`Enter student ${searchType}`}
-                                        className="flex-1 p-2 border rounded-md"
-                                        required
-                                    />
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                                    >
-                                        Add Student
-                                    </button>
-                                </div>
-                                {error && <p className="text-sm text-red-500">{error}</p>}
-                            </form>
-
-                            {/* Assigned students list */}
-                            <div className="space-y-2">
-                                {assignedStudents.map((student) => (
-                                    <div key={student._id} className="flex justify-between items-center p-2 bg-white rounded border">
-                                        <div>
-                                            <p className="font-medium">{student.username}</p>
-                                            <p className="text-sm text-gray-600">{student.email}</p>
-                                        </div>
-                                        <button
-                                            onClick={() => handleRemoveStudent(student._id)}
-                                            className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
-                                {assignedStudents.length === 0 && (
-                                    <p className="text-gray-500">No students assigned yet.</p>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Question Sets Selection */}
                 <div className="mb-8">
                     <h2 className="text-xl font-semibold mb-4">Select Question Set</h2>
                     <div className="flex gap-4 items-center">
@@ -538,96 +450,20 @@ export default function TestDetail() {
                     )}
                 </div>
 
-                {/* Question Distribution */}
+                <QuestionDistribution
+                    test={test}
+                    tempDistribution={tempDistribution}
+                    handleDistributionChange={handleDistributionChange}
+                    handleConfirmDistribution={handleConfirmDistribution}
+                />
+
                 <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Question Distribution</h2>
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Total Questions
-                                </label>
-                                <input
-                                    type="number"
-                                    value={tempDistribution.totalQuestions}
-                                    onChange={(e) => handleDistributionChange('totalQuestions', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                    disabled={test.status === 'published'}
-                                    min="0"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Easy Questions
-                                </label>
-                                <input
-                                    type="number"
-                                    value={tempDistribution.easy}
-                                    onChange={(e) => handleDistributionChange('easy', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                    disabled={test.status === 'published'}
-                                    min="0"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Medium Questions
-                                </label>
-                                <input
-                                    type="number"
-                                    value={tempDistribution.medium}
-                                    onChange={(e) => handleDistributionChange('medium', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                    disabled={test.status === 'published'}
-                                    min="0"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Hard Questions
-                                </label>
-                                <input
-                                    type="number"
-                                    value={tempDistribution.hard}
-                                    onChange={(e) => handleDistributionChange('hard', e.target.value)}
-                                    className="w-full p-2 border rounded-md"
-                                    disabled={test.status === 'published'}
-                                    min="0"
-                                />
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                            <h3 className="text-sm font-medium text-gray-700 mb-2">Current Distribution</h3>
-                            <div className="grid grid-cols-4 gap-4 text-center">
-                                <div>
-                                    <p className="text-2xl font-bold text-gray-900">{tempDistribution.totalQuestions}</p>
-                                    <p className="text-sm text-gray-500">Total</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-green-600">{tempDistribution.easy}</p>
-                                    <p className="text-sm text-gray-500">Easy</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-yellow-600">{tempDistribution.medium}</p>
-                                    <p className="text-sm text-gray-500">Medium</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-red-600">{tempDistribution.hard}</p>
-                                    <p className="text-sm text-gray-500">Hard</p>
-                                </div>
-                            </div>
-                        </div>
-                        {test.status !== 'published' && (
-                            <div className="flex justify-end mt-4">
-                                <button
-                                    onClick={handleConfirmDistribution}
-                                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
-                                >
-                                    Confirm Changes
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    <button
+                        onClick={handleViewResults}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                        View Test Results
+                    </button>
                 </div>
             </div>
         </div>

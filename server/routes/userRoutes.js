@@ -5,9 +5,9 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // Find user by username or email
-router.get("/find", protect, findUser);
+router.get("/find", findUser);
 
 // Get multiple users by their IDs
-router.get("/students", protect, getUsersByIds);
+router.get("/students", getUsersByIds);
 
 export default router; 

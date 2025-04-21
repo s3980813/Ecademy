@@ -19,20 +19,25 @@ export default function StudentDashboard() {
     useEffect(() => {
         const fetchStudentData = async () => {
             try {
-                // Fetch available tests
-                const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
-                setAvailableTests(testsRes.data);
-                console.log(testsRes.data);
                 // Fetch test history
                 const historyRes = await axios.get(`${BACKEND_URL}/test-results/student/${user._id}`);
                 setTestHistory(historyRes.data);
+                console.log(historyRes.data);
+
+                // Fetch available tests
+                const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
+
+                // Filter out tests that are already completed
+                const completedTestIds = historyRes.data.map(result => result.testId._id);
+                const upcomingTests = testsRes.data.filter(test => !completedTestIds.includes(test._id));
+                setAvailableTests(upcomingTests);
 
                 // Calculate performance stats
                 const stats = {
                     averageScore: 0,
                     totalTests: testsRes.data.length,
                     completedTests: historyRes.data.length,
-                    upcomingTests: testsRes.data.filter(test => !historyRes.data.some(h => h.testId === test._id)).length
+                    upcomingTests: upcomingTests.length,
                 };
 
                 if (historyRes.data.length > 0) {
@@ -141,7 +146,7 @@ export default function StudentDashboard() {
                         {testHistory.map(result => (
                             <div key={result._id} className="flex justify-between items-center p-4 border rounded-lg">
                                 <div>
-                                    <h3 className="font-semibold">{result.testTitle}</h3>
+                                    <h3 className="font-semibold">{result.testId.title}</h3>
                                     <p className="text-sm text-textSecondary">
                                         Completed on: {formatDate(result.completedAt)}
                                     </p>
@@ -149,9 +154,15 @@ export default function StudentDashboard() {
                                 <div className="text-right">
                                     <p className="font-semibold text-primary">{result.score}%</p>
                                     <p className="text-sm text-textSecondary">
-                                        {result.correctAnswers}/{result.totalQuestions} correct
+                                        {result.trueAnswer}/{result.testId.totalQuestions} correct
                                     </p>
-                                </div>
+                                    <button
+                                        onClick={() => window.location.href = `/answer-history/${result._id}`}
+                                        className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-dark transition-colors ml-2"
+                                    >
+                                        View History
+                                    </button>
+                                                                    </div>
                             </div>
                         ))}
                         {testHistory.length === 0 && (

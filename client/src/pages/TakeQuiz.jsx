@@ -148,7 +148,8 @@ export default function TakeQuiz() {
         studentId: user._id, // Assuming you store user ID in local storage
         testId: id,
         answers,
-        score: (totalScore / questions.length) * 100
+        score: (totalScore / questions.length) * 100,
+        trueAnswer: totalScore,
       });
 
       setScore(totalScore);
