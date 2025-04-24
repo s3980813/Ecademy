@@ -96,7 +96,7 @@ export const deleteQuestion = async (req, res) => {
     }
 };
 
-const checkQuestionSetUsage = async (questionSetId, res) => {
+export const checkQuestionSetUsage = async (questionSetId, res) => {
     try {
         const tests = await Test.find({ questionSetId });
         if (tests.length > 0) {

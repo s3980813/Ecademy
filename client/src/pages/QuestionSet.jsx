@@ -83,7 +83,11 @@ export default function QuestionSet() {
             setSets(sets.filter(set => set._id !== id));
             alert("Question set deleted successfully!");
         } catch (error) {
-            console.error('Error deleting question set:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert(`Error: ${error.response.data.message}`);
+            } else {
+                alert("Something went wrong 😢");
+            }
         }
     };
 
