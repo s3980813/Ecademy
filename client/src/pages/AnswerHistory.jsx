@@ -34,8 +34,11 @@ export default function AnswerHistory() {
                 // Map questions to student answers and correct answers
                 const mappedAnswers = testResult.answers.map((studentAnswer) => {
                     const question = questionSet.find(q => q._id === studentAnswer.questionId);
+                    console.log("Question:", question);
+                    console.log("Options:", question?.options); // Added log for options
                     return {
                         question: question?.text || "Unknown question",
+                        options: question?.options || {},
                         studentAnswer: studentAnswer.selectedAnswer,
                         correctAnswer: question?.correctAnswer || "Unknown",
                         isCorrect: studentAnswer.selectedAnswer === question?.correctAnswer
@@ -98,6 +101,7 @@ export default function AnswerHistory() {
                         <thead className="bg-blue-500 text-white">
                             <tr>
                                 <th className="border border-gray-300 px-4 py-2">Question</th>
+                                <th className="border border-gray-300 px-4 py-2">Options</th> {/* New column */}
                                 <th className="border border-gray-300 px-4 py-2">Student Answer</th>
                                 <th className="border border-gray-300 px-4 py-2">Correct Answer</th>
                                 <th className="border border-gray-300 px-4 py-2">Correct</th>
@@ -107,6 +111,11 @@ export default function AnswerHistory() {
                             {answers.map((entry, index) => (
                                 <tr key={index} className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}>
                                     <td className="border border-gray-300 px-4 py-2 text-gray-700">{entry.question}</td>
+                                    <td className="border border-gray-300 px-4 py-2 text-gray-700"> {/* New cell for options */}
+                                        {Object.entries(entry.options).map(([key, value]) => (
+                                            <div key={key}><strong>{key}:</strong> {value}</div>
+                                        ))}
+                                    </td>
                                     <td className="border border-gray-300 px-4 py-2 text-gray-700">{entry.studentAnswer}</td>
                                     <td className="border border-gray-300 px-4 py-2 text-gray-700">{entry.correctAnswer}</td>
                                     <td className="border border-gray-300 px-4 py-2 text-center">

@@ -1,5 +1,6 @@
 import Test from "../models/testModel.js";
 import Question from "../models/questionModel.js";
+import TestResult from "../models/testResultModel.js";
 
 // Get all tests
 export const getAllTests = async (req, res) => {
@@ -91,6 +92,9 @@ export const updateTest = async (req, res) => {
 // Delete a test by ID
 export const deleteTest = async (req, res) => {
     try {
+        // Delete test results associated with the test
+        await TestResult.deleteMany({ testId: req.params.id });
+        // Delete the test
         const deletedTest = await Test.findByIdAndDelete(req.params.id);
         if (!deletedTest) return res.status(404).json({ message: "Test not found" });
         res.status(200).json({ message: "Test successfully deleted" });
