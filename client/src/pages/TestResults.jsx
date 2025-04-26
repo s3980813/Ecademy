@@ -9,6 +9,11 @@ export default function TestResults() {
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    };
+
     useEffect(() => {
         const fetchResults = async () => {
             try {
@@ -46,6 +51,7 @@ export default function TestResults() {
                             <tr>
                                 <th className="border border-gray-300 px-4 py-2 text-left text-gray-700">Student Name</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left text-gray-700">Score</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left text-gray-700">Completion Time</th>
                                 <th className="border border-gray-300 px-4 py-2 text-left text-gray-700">Actions</th>
                             </tr>
                         </thead>
@@ -54,6 +60,7 @@ export default function TestResults() {
                                 <tr key={result.studentId} className="hover:bg-gray-100">
                                     <td className="border border-gray-300 px-4 py-2 text-gray-800">{result.studentId.username}</td>
                                     <td className="border border-gray-300 px-4 py-2 text-gray-800">{result.score}</td>
+                                    <td className="border border-gray-300 px-4 py-2 text-gray-800">{formatDate(result.completedAt)}</td>
                                     <td className="border border-gray-300 px-4 py-2">
                                         <button
                                             onClick={() => navigate(`/answer-history/${result._id}`)}

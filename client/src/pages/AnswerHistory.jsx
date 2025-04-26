@@ -116,7 +116,13 @@ export default function AnswerHistory() {
                                             <div key={key}><strong>{key}:</strong> {value}</div>
                                         ))}
                                     </td>
-                                    <td className="border border-gray-300 px-4 py-2 text-gray-700">{entry.studentAnswer}</td>
+                                    <td className="border border-gray-300 px-4 py-2 text-gray-700">
+                                        {entry.studentAnswer === "" ? (
+                                            <span className="px-2 py-1 rounded-full text-white bg-yellow-500">Missing</span>
+                                        ) : (
+                                            entry.studentAnswer
+                                        )}
+                                    </td>
                                     <td className="border border-gray-300 px-4 py-2 text-gray-700">{entry.correctAnswer}</td>
                                     <td className="border border-gray-300 px-4 py-2 text-center">
                                         <span className={`px-2 py-1 rounded-full text-white ${entry.isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>

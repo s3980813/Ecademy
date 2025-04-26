@@ -14,6 +14,8 @@ import TakeQuiz from "./pages/TakeQuiz";
 import TestResults from "./pages/TestResults";
 import AnswerHistory from "./pages/AnswerHistory";
 import TestSearch from "./pages/TestSearch";
+import EnterTestId from "./pages/EnterTestId";
+
 export default function App() {
     return (
         <>
@@ -38,6 +40,7 @@ export default function App() {
                 <Route path="/student-dashboard" element={<ProtectedRoutes isTeacher={false}><StudentDashboard /></ProtectedRoutes>} />
                 <Route path="/answer-history/:id" element={<ProtectedRoutes><AnswerHistory /></ProtectedRoutes>} />
                 <Route path="/student-dashboard/test-search" element={<ProtectedRoutes isTeacher={false}><TestSearch /></ProtectedRoutes>} />
+                <Route path="/student-dashboard/enter-test-id" element={<ProtectedRoutes isTeacher={false}><EnterTestId /></ProtectedRoutes>} />
                 <Route path="*" element={<div className="flex justify-center items-center h-screen">404 Not Found</div>} />
             </Routes>
         </>

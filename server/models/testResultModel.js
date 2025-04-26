@@ -23,7 +23,6 @@ const testResultSchema = new mongoose.Schema({
         },
         selectedAnswer: {
             type: String,
-            required: true
         },
     }],
     trueAnswer: {

@@ -22,6 +22,7 @@ export default function Sidebar() {
             <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
             <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Assigned Tests</a>
             <a href="/student-dashboard/test-search" className="hover:text-yellow-400">🔍 Search Tests</a>
+            <a href="/student-dashboard/enter-test-id" className="hover:text-yellow-400">📝 Take test with code</a>
             </>  
           )}
         </nav>

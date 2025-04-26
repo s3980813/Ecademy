@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '../components/Sidebar';
-import TestSearch from './TestSearch';
 
 export default function StudentDashboard() {
     const [availableTests, setAvailableTests] = useState([]);
@@ -59,11 +58,15 @@ export default function StudentDashboard() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        const date = new Date(dateString);
+        return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     };
 
+    // Sort test history by completion date (oldest to latest)
+    const sortedTestHistory = [...testHistory].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+
     // Prepare data for performance chart
-    const performanceData = testHistory.map(result => ({
+    const performanceData = sortedTestHistory.map(result => ({
         name: result.testTitle,
         score: result.score
     }));

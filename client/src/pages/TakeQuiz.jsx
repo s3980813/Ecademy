@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import QuizTimer from "../components/quiz/QuizTimer";
 import QuizQuestion from "../components/quiz/QuizQuestion";
@@ -19,6 +19,8 @@ export default function TakeQuiz() {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -112,6 +114,36 @@ export default function TakeQuiz() {
     return () => clearInterval(timer);
   }, [isFinished, countdown]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (!isFinished) {
+        event.preventDefault();
+        event.returnValue = "If you leave, your test will be submitted automatically.";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isFinished]);
+
+  useEffect(() => {
+    const handleNavigation = () => {
+      if (!isFinished) {
+        alert("You cannot navigate away during the test. Your test will be submitted automatically.");
+        navigate(location.pathname, { replace: true });
+      }
+    };
+
+    window.addEventListener("popstate", handleNavigation);
+
+    return () => {
+      window.removeEventListener("popstate", handleNavigation);
+    };
+  }, [isFinished, navigate, location.pathname]);
+
   const selectAnswer = (optionKey) => {
     if (isFinished) return;
     setSelectedAnswers({ ...selectedAnswers, [current]: optionKey });
@@ -134,18 +166,20 @@ export default function TakeQuiz() {
       let totalScore = 0;
       const answers = questions.map((q, i) => ({
         questionId: q._id,
-        selectedAnswer: selectedAnswers[i] || null // Use null if no answer selected
+        selectedAnswer: selectedAnswers[i] || "" // Use null if no answer selected
       }));
       console.log('Answers:', answers);
 
       // Calculate score
       questions.forEach((q, i) => {
-        if (selectedAnswers[i] === q.correctAnswer) totalScore += 1;
+        if (selectedAnswers[i] && selectedAnswers[i] === q.correctAnswer) {
+          totalScore += 1;
+        }
       });
 
       //Submit test attempt
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/test-results/submit`, {
-        studentId: user._id, // Assuming you store user ID in local storage
+        studentId: user._id,
         testId: id,
         answers,
         score: (totalScore / questions.length) * 100,
@@ -233,6 +267,7 @@ export default function TakeQuiz() {
             score={score}
             totalQuestions={questions.length}
             onRetry={resetQuiz}
+            navigateToDashboard={() => navigate('/student-dashboard')}
           />
         )}
       </div>
