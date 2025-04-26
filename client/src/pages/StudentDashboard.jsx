@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '../components/Sidebar';
+import Hamburgerbar from '../components/Hamburgerbar';
 
 export default function StudentDashboard() {
     const [availableTests, setAvailableTests] = useState([]);
@@ -76,7 +77,10 @@ export default function StudentDashboard() {
             {/* Sidebar */}
             <Sidebar />
 
-            <div className="flex-1 p-10 bg-background ml-64">
+            <div className="flex-1 p-10 bg-background md:ml-64">
+                <div className="flex items-center justify-between mb-4">
+                    <Hamburgerbar />
+                </div>
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Student Dashboard</h1>

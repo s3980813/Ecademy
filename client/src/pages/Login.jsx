@@ -101,11 +101,9 @@ export default function Login() {
                 <button className="bg-primary text-white py-2 px-4 rounded shadow hover:bg-secondary transition duration-300 w-full mt-6" type="submit">
                     Login
                 </button>
-                {/* Forgot password link */}
+                {/* Sign up link */}
                 <div className="text-center mt-4">
-                    <a href="#" className="text-secondary text-sm hover:underline">
-                        Forgot Password?
-                    </a>
+                    <p className="text-textPrimary text-sm">Don't have an account? <a href="/register" className="text-secondary hover:underline">Sign up</a></p>
                 </div>
             </form>
         </div>

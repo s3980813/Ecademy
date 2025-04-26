@@ -26,10 +26,10 @@ export default function TestSearch() {
     return (
                     
         <div className='flex w-full flex-col p-10'>
-            <div className="flex w-[70%] mx-auto items-center mb-4">
+            <div className="flex w-full md:w-[70%] mx-auto items-center mb-4">
                 <BackButton />
             </div>
-            <div className="bg-card w-[70%] mx-auto p-4 rounded-lg shadow">
+            <div className="bg-card md:w-[70%] mx-auto p-4 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">Search Public Tests</h2>
                 <div className="flex items-center mt-4">
                     <input

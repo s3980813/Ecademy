@@ -2,6 +2,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
+import Hamburgerbar from "../components/Hamburgerbar";
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
@@ -36,9 +37,14 @@ export default function TeacherDashboard() {
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <Sidebar />
+
+      {/* Hamburger Menu */}
       
       {/* Main Content */}
-      <main className="flex-1 p-10 bg-background ml-64">
+      <main className="flex-1 p-10 bg-background md:ml-64">
+        <div className="flex items-center justify-between mb-4">
+          <Hamburgerbar />
+        </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome, {user?.username || "Teacher"} 👋</h1>
         <p className="text-gray-600">Here’s your teaching control center 🧑‍🏫.</p>
 

@@ -8,7 +8,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-64 bg-[#1E293B] text-white p-6 flex flex-col fixed h-full">
+        <aside className="hidden w-64 bg-[#1E293B] text-white p-6 md:flex flex-col fixed h-full">
         <h2 className="text-2xl font-bold mb-6">🎓 Ecademy</h2>
         <nav className="flex flex-col gap-4 text-lg">
           { user.isTeacher ? (

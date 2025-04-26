@@ -124,11 +124,8 @@ export default function Register() {
                     </form>
 
                     {/* Already have an account */}
-                    <div className="text-center mt-4">
-                        <a href="/login" className="text-secondary text-sm hover:underline">
-                            Already have an account? Log in
-                        </a>
-                    </div>
+                    <p className="text-textPrimary text-sm">Already have an account? <a href="/login" className="text-secondary hover:underline">Login</a></p>
+
                 </div>
             </div>
         </>

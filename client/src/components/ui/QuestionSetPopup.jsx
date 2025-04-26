@@ -11,8 +11,9 @@ export default function QuestionSetPopup({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[400px]">
-                <h2 className="text-xl font-semibold mb-4">Create New Question Set</h2>
+            <div className="bg-white p-6 rounded-lg shadow-lg md:w-[400px] w-[90%]">
+                <h2 className="md:text-xl font-semibold mb-4">Create New Question Set</h2>
+                <p className="text-gray-600 mb-4">Question name:</p>
                 <input
                     type="text"
                     name="name"
@@ -21,6 +22,7 @@ export default function QuestionSetPopup({
                     placeholder="Question set name"
                     className="w-full p-2 border rounded mb-2"
                 />
+                <p className="text-gray-600 mb-4">Easy question:</p>
                 <input
                     type="number"
                     name="easy"
@@ -29,6 +31,7 @@ export default function QuestionSetPopup({
                     placeholder="Easy questions"
                     className="w-full p-2 border rounded mb-2"
                 />
+                <p className="text-gray-600 mb-4">Medium question:</p>
                 <input
                     type="number"
                     name="medium"
@@ -37,6 +40,7 @@ export default function QuestionSetPopup({
                     placeholder="Medium questions"
                     className="w-full p-2 border rounded mb-2"
                 />
+                <p className="text-gray-600 mb-4">Hard question:</p>
                 <input
                     type="number"
                     name="hard"

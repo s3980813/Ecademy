@@ -78,6 +78,8 @@ export default function Test() {
     // Delete test
     const deleteTest = async (id) => {
         try {
+            if (!window.confirm("Are you sure you want to delete this test and test result?")) return;
+            console.log("Deleting test with ID:", id);
             await axios.delete(`${BACKEND_URL}/tests/${id}`);
             setTests(tests.filter(test => test._id !== id));
             alert("Test deleted!");
@@ -96,49 +98,58 @@ export default function Test() {
             <div className="w-[80%] flex justify-start mb-4">
                 <BackButton />
             </div>
-            <div className="bg-card shadow-lg rounded-lg p-8 w-[80%] flex flex-col items-center">
-                <div className="flex justify-between w-full mb-6">
-                    <h1 className="text-sectionTitle font-bold text-primary">Test List</h1>
-                    <button
-                        onClick={openPopup}
-                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-                    >
-                        Create New Test
-                    </button>
-                </div>
-
-                <div className="mt-6 flex flex-col w-full mb-6">
-                    {tests.length > 0 ? (
-                        tests.map((test) => (
-                            <div
-                                key={test._id}
-                                className="flex justify-between items-center p-4 border-b"
-                            >
-                                <span className="font-semibold text-cardTitle text-textPrimary">{test.title}</span>
-                                <div className="text-textSecondary text-body mr-4">
-                                    Duration: {test.duration} mins
-                                </div>
-                                <div>
-                                    <button
-                                        onClick={() => accessTest(test._id)}
-                                        className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2 hover:bg-blue-600"
-                                    >
-                                        Access
-                                    </button>
-                                    <button
-                                        onClick={() => deleteTest(test._id)}
-                                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-500">There is no test yet.</p>
-                    )}
-                </div>
+            <div className="bg-card shadow-lg rounded-lg p-6 md:p-8 w-full max-w-4xl mx-auto flex flex-col items-center">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-center w-full mb-6 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-primary text-center md:text-left">
+                Test List
+                </h1>
+                <button
+                onClick={openPopup}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                >
+                Create New Test
+                </button>
             </div>
+
+            {/* Test list */}
+            <div className="mt-4 flex flex-col w-full mb-6 space-y-4">
+                {tests.length > 0 ? (
+                tests.map((test) => (
+                    <div
+                    key={test._id}
+                    className="flex flex-col md:flex-row md:justify-between md:items-center p-4 border rounded-md hover:shadow transition"
+                    >
+                    <span className="font-semibold text-lg text-cardTitle text-textPrimary mb-2 md:mb-0">
+                        {test.title}
+                    </span>
+
+                    <div className="text-textSecondary text-base mb-2 md:mb-0">
+                        Duration: {test.duration} mins
+                    </div>
+
+                    <div className="flex justify-center md:justify-end gap-2">
+                        <button
+                        onClick={() => accessTest(test._id)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                        >
+                        Access
+                        </button>
+                        <button
+                        onClick={() => deleteTest(test._id)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                        >
+                        Delete
+                        </button>
+                    </div>
+                    </div>
+                ))
+                ) : (
+                <p className="text-gray-500 text-center">There is no test yet.</p>
+                )}
+            </div>
+            </div>
+
 
             {/* Popup for test creation */}
             <TestPopup

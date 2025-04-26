@@ -409,7 +409,7 @@ export default function TestDetail() {
                 <BackButton />
             </div>
 
-            <div className="w-[80%] bg-card shadow-lg rounded-lg p-8">
+            <div className="md:w-[80%] bg-card shadow-lg rounded-lg p-8">
                 <TestHeader test={test} handlePublish={handlePublish} handleCancelPublish={handleCancelPublish} />
 
                 <p className="text-gray-600 mb-6">{test.description}</p>

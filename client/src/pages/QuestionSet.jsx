@@ -105,54 +105,62 @@ export default function QuestionSet() {
                 <BackButton />  
             </div>
             {/* Container to store main content */}
-            <div className ="bg-card shadow-lg rounded-lg p-8 w-[80%] flex flex-col items-center">
-                <div className="flex justify-between w-full mb-6">
-                    <h1 className="text-sectionTitle font-bold text-primary">Question Set List</h1>
-                    <button
-                        onClick={openPopup}
-                        className="px-3 py-1 bg-green-500 text-white rounded-md hover:bg-green-600"
-                    >
-                        Create New Set
-                    </button>
-                </div>
+            <div className="bg-card shadow-lg rounded-lg p-6 md:p-8 w-full max-w-4xl mx-auto flex flex-col items-center">
+            {/* Top Bar */}
+            <div className="flex flex-col md:flex-row justify-between items-center w-full mb-6 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold text-primary text-center md:text-left">
+                Question Set List
+                </h1>
+                <button
+                onClick={openPopup}
+                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                >
+                Create New Set
+                </button>
+            </div>
 
-                {/* Question set list */}
-                <div className="mt-6 flex flex-col w-full mb-6">
-                    {sets.length > 0 ? (
-                        sets.map((set) => (
-                            <div
-                                key={set.id}
-                                className="flex justify-between items-center p-4 border-b"
-                            >
-                                <span className="font-semibold text-cardTitle text-textPrimary">{set.name}</span>
-                                <div className="flex items-center">
-                                    <p className="text-textSecondary text-body mr-6">Easy: {set.easy}</p>
-                                    <p className="text-textSecondary text-body mr-6">Medium: {set.medium}</p>
-                                    <p className="text-textSecondary text-body mr-6">Hard: {set.hard}</p>
-                                </div>
-                                <div>
-                                    {/* Access button */}
-                                    <button
-                                        onClick={() => accessSet(set._id)}
-                                        className="px-3 py-1 bg-blue-500 text-white rounded-md mr-2 hover:bg-blue-600"
-                                    >
-                                        Access
-                                    </button>
-                                    {/* Delete button */}
-                                    <button
-                                        onClick={() => deleteSet(set._id)}
-                                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-gray-500">There is no question set yet.</p>
-                    )}
-                </div>
-            </div> 
+            {/* Question set list */}
+            <div className="mt-4 flex flex-col w-full mb-6 space-y-4">
+                {sets.length > 0 ? (
+                sets.map((set) => (
+                    <div
+                    key={set.id}
+                    className="flex flex-col md:flex-row md:justify-between md:items-center p-4 border rounded-md hover:shadow transition"
+                    >
+                    <span className="font-semibold text-lg text-cardTitle text-textPrimary mb-2 md:mb-0">
+                        {set.name}
+                    </span>
+
+                    <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 mb-2 md:mb-0">
+                        <p className="text-textSecondary text-base">Easy: {set.easy}</p>
+                        <p className="text-textSecondary text-base">Medium: {set.medium}</p>
+                        <p className="text-textSecondary text-base">Hard: {set.hard}</p>
+                    </div>
+
+                    <div className="flex justify-center md:justify-end gap-2">
+                        {/* Access button */}
+                        <button
+                        onClick={() => accessSet(set._id)}
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                        >
+                        Access
+                        </button>
+                        {/* Delete button */}
+                        <button
+                        onClick={() => deleteSet(set._id)}
+                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                        >
+                        Delete
+                        </button>
+                    </div>
+                    </div>
+                ))
+                ) : (
+                <p className="text-gray-500 text-center">There is no question set yet.</p>
+                )}
+            </div>
+            </div>
+ 
 
             {/* Popup for creating new question set */}
             <QuestionSetPopup

@@ -149,7 +149,7 @@ export default function QuestionSetDetail() {
                                     // Display each question with edit and delete buttons
                                     <div key={q._id} className="flex justify-between items-center p-3 border-b">
                                         <span>{q.text}</span>
-                                        <div>
+                                        <div className="flex space-x-2">
                                             {/* Edit and delete buttons */}
                                             <button onClick={() => openPopup(q)} className="px-2 py-1 bg-blue-500 text-white rounded-md mr-2">
                                                 Edit
