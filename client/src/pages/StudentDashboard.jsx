@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '../components/Sidebar';
+import TestSearch from './TestSearch';
 
 export default function StudentDashboard() {
     const [availableTests, setAvailableTests] = useState([]);
@@ -72,7 +73,7 @@ export default function StudentDashboard() {
             {/* Sidebar */}
             <Sidebar />
 
-            <div className="flex-1 p-10 bg-background">
+            <div className="flex-1 p-10 bg-background ml-64">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Student Dashboard</h1>
@@ -104,20 +105,20 @@ export default function StudentDashboard() {
                     <h2 className="text-xl font-semibold mb-4">Performance Overview</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={performanceData}>
+                            <LineChart data={performanceData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                <Bar dataKey="score" fill="#4F46E5" />
-                            </BarChart>
+                                <Line type="monotone" dataKey="score" stroke="#4F46E5" />
+                            </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Available Tests */}
                 <div className="bg-card p-4 rounded-lg shadow mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Available Tests</h2>
+                    <h2 className="text-xl font-semibold mb-4">Assigned Tests</h2>
                     <div className="space-y-4">
                         {availableTests.filter(test => !testHistory.some(h => h.testId === test._id)).map(test => (
                             <div key={test._id} className="flex justify-between items-center p-4 border rounded-lg">
@@ -140,7 +141,7 @@ export default function StudentDashboard() {
                 </div>
 
                 {/* Test History */}
-                <div className="bg-card p-4 rounded-lg shadow">
+                <div className="bg-card p-4 rounded-lg shadow mb-8">
                     <h2 className="text-xl font-semibold mb-4">Test History</h2>
                     <div className="space-y-4">
                         {testHistory.map(result => (
@@ -162,7 +163,7 @@ export default function StudentDashboard() {
                                     >
                                         View History
                                     </button>
-                                                                    </div>
+                                </div>
                             </div>
                         ))}
                         {testHistory.length === 0 && (

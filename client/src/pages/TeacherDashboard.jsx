@@ -38,7 +38,7 @@ export default function TeacherDashboard() {
       <Sidebar />
       
       {/* Main Content */}
-      <main className="flex-1 p-10 bg-background">
+      <main className="flex-1 p-10 bg-background ml-64">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome, {user?.username || "Teacher"} 👋</h1>
         <p className="text-gray-600">Here’s your teaching control center 🧑‍🏫.</p>
 

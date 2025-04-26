@@ -5,6 +5,16 @@ import TestResult from "../models/testResultModel.js";
 // Get all tests
 export const getAllTests = async (req, res) => {
     try {
+        if (req.query) {
+            const searchQuery = req.query.searchQuery;
+            const tests = await Test.find({
+                title: { $regex: searchQuery, $options: "i" },
+                status: 'published',
+                mode: 'public'
+            }).populate("teacherId", "name email");
+            if (!tests.length) return res.status(404).json({ message: `${searchQuery} not found` });
+            return res.status(200).json(tests);
+        }
         const tests = await Test.find().populate("teacherId", "name email");
         res.status(200).json(tests);
     } catch (error) {
@@ -67,6 +77,7 @@ export const getQuestionsForTest = async (req, res) => {
         res.status(500).json({ message: "Error fetching questions for test", error });
     }
 }
+
 // Create a new test
 export const createTest = async (req, res) => {
     try {

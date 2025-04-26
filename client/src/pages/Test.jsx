@@ -76,9 +76,6 @@ export default function Test() {
 
     // Delete test
     const deleteTest = async (id) => {
-        const confirmation = window.confirm("Are you sure you want to delete this test? Deleting the test will also delete all associated test results.");
-        if (!confirmation) return;
-
         try {
             await axios.delete(`${BACKEND_URL}/tests/${id}`);
             setTests(tests.filter(test => test._id !== id));
