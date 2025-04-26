@@ -64,6 +64,18 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                             className="p-2 border rounded"
                         />
                     </div>
+                    <div className="mb-4">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="multipleAttempts"
+                                checked={newTest.multipleAttempts}
+                                onChange={handleChange}
+                                className="form-checkbox h-5 w-5 text-blue-600"
+                            />
+                            <span className="text-gray-700">Allow Multiple Attempts</span>
+                        </label>
+                    </div>
                     <button
                         onClick={createTest}
                         className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"

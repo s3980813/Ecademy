@@ -33,6 +33,20 @@ export default function TakeQuiz() {
         setTest(testData);
         setCountdown(testData.duration * 60);
 
+        // Check if the test allows multiple attempts
+        if (!testData.multipleAttempts) {
+          const attemptsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/test-results/${testData._id}/results`);
+          console.log('Attempts:', attemptsResponse.data);
+          if (attemptsResponse.data.length > 0) {
+            attemptsResponse.data.forEach(attempt => {
+              if (attempt.studentId._id === user._id) {
+                alert("You have already completed this test. You cannot retake it.");
+                navigate('/student-dashboard', { replace: true });
+                return
+              }
+            });
+          }
+        }
         // Fetch questions for the question set
         const questionsResponse = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/questions`,
@@ -43,39 +57,22 @@ export default function TakeQuiz() {
           }
         );
         const allQuestions = questionsResponse.data;
-        console.log('All Questions:', allQuestions);
 
         // Filter questions by difficulty
         const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy');
         const mediumQuestions = allQuestions.filter(q => q.difficulty === 'medium');
         const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
 
-        console.log('Filtered Questions:', {
-          easy: easyQuestions.length,
-          medium: mediumQuestions.length,
-          hard: hardQuestions.length
-        });
-
         // Get question counts from test data
         const easyCount = testData.easy || 0;
         const mediumCount = testData.medium || 0;
         const hardCount = testData.hard || 0;
-
-        console.log('Question Counts:', {
-          easy: easyCount,
-          medium: mediumCount,
-          hard: hardCount
-        });
-
         // Randomly select questions based on distribution
         const selectedQuestions = [
           ...getRandomQuestions(easyQuestions, easyCount),
           ...getRandomQuestions(mediumQuestions, mediumCount),
           ...getRandomQuestions(hardQuestions, hardCount)
         ];
-
-        console.log('Selected Questions:', selectedQuestions);
-
         // Shuffle all selected questions
         const shuffledQuestions = shuffleArray(selectedQuestions);
         setQuestions(shuffledQuestions);

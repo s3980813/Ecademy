@@ -39,8 +39,8 @@ export default function Test() {
 
     // Handle input change
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setNewTest({ ...newTest, [name]: value });
+        const { name, value, type, checked } = e.target;
+        setNewTest({ ...newTest, [name]: type === 'checkbox' ? checked : value });
     };
 
     // Create a test
@@ -65,6 +65,7 @@ export default function Test() {
             return;
         }
         try {
+            console.log("Creating test with data:", newTest);
             const res = await axios.post(`${BACKEND_URL}/tests`, newTest);
             setTests([...tests, res.data]);
             closePopup();

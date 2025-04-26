@@ -38,6 +38,7 @@ export default function TestDetail() {
                 });
                 if (testResponse.status === 200) {
                     setTest(testResponse.data);
+                    console.log("Test Data:", testResponse.data);
                     if (testResponse.data.assignedStudentsId && testResponse.data.assignedStudentsId.length > 0) {
                         // Fetch assigned students details
                         const studentsResponse = await axios.get(`${BACKEND_URL}/users/students`, {
@@ -236,6 +237,25 @@ export default function TestDetail() {
         } catch (error) {
             console.error("Error removing student:", error);
             alert("Failed to remove student. Please try again.");
+        }
+    };
+
+    const handleAllowMultipleAttempts = async (e) => {
+        const { checked } = e.target;
+        console.log("Allow multiple attempts:", checked);
+        try {
+            const response = await axios.put(`${BACKEND_URL}/tests/${id}`, {
+                multipleAttempts: checked
+            }, {
+                withCredentials: true
+            });
+            if (response.status === 200) {
+                setTest(prev => ({ ...prev, multipleAttempts: checked }));
+                alert("Test updated successfully!");
+            }
+        } catch (error) {
+            console.error("Error updating test settings:", error);
+            alert("Failed to update test settings. Please try again.");
         }
     };
 
@@ -448,6 +468,16 @@ export default function TestDetail() {
                             Question set cannot be changed while the test is published.
                         </p>
                     )}
+                </div>
+
+                <div className="flex items-center mb-8">
+                    <input
+                        type="checkbox"
+                        checked={test.multipleAttempts}
+                        onChange={handleAllowMultipleAttempts}
+                        className="form-checkbox h-5 w-5 text-blue-600 mr-2"
+                    />
+                    <span className="text-gray-700">Allow Multiple Attempts</span>
                 </div>
 
                 <QuestionDistribution

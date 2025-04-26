@@ -25,6 +25,7 @@ const TestSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User' 
     }],
+    multipleAttempts: { type: Boolean},
 });
 
 const Test = mongoose.model('Test', TestSchema);
