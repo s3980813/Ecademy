@@ -27,10 +27,12 @@ export default function StudentDashboard() {
 
                 // Fetch available tests
                 const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
+                console.log(testsRes.data);
+                const assignedTests = testsRes.data.filter(test => test.mode === "assigned");
 
                 // Filter out tests that are already completed
                 const completedTestIds = historyRes.data.map(result => result.testId._id);
-                const upcomingTests = testsRes.data.filter(test => !completedTestIds.includes(test._id));
+                const upcomingTests = assignedTests.data.filter(test => !completedTestIds.includes(test._id));
                 setAvailableTests(upcomingTests);
 
                 // Calculate performance stats
