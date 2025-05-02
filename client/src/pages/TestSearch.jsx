@@ -1,27 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import BackButton from '../components/ui/BackButton';
 
 export default function TestSearch() {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
+    const [filteredResults, setFilteredResults] = useState([]);
     const [searchError, setSearchError] = useState("");
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     const handleSearch = async () => {
         try {
             const res = await axios.get(`${BACKEND_URL}/tests?searchQuery=${searchQuery}`);
+            let results = res.data;
+
+            // Apply the current category filter if it exists
+            const selectedCategory = document.querySelector('select').value;
+            if (selectedCategory) {
+                results = results.filter(test => test.category === selectedCategory);
+            }
+
             setSearchResults(res.data);
+            setFilteredResults(results);
             setSearchError("");
         } catch (err) {
             if (err.response && err.response.status === 404) {
                 setSearchError(`No public tests found for "${searchQuery}".`);
                 setSearchResults([]);
+                setFilteredResults([]);
             } else {
                 console.error("Error searching for tests:", err);
             }
         }
     };
+
+    const handleCategoryFilter = (category) => {
+        if (category === "") {
+            setFilteredResults(searchResults); // Show all tests if no category is selected
+        } else {
+            const filteredResults = searchResults.filter(test => test.category === category);
+            setFilteredResults(filteredResults);
+        }
+    };
+
+    const fetchAllTests = async () => {
+        try {
+            const res = await axios.get(`${BACKEND_URL}/tests`);
+            setSearchResults(res.data);
+            setFilteredResults(res.data);
+            setSearchError("");
+        } catch (err) {
+            console.error("Error fetching all tests:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllTests();
+    }, []);
 
     return (
                     
@@ -39,6 +74,19 @@ export default function TestSearch() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="border border-gray-300 rounded-md p-2 flex-1"
                     />
+                    <div className="flex items-center">
+                        <select
+                            onChange={(e) => handleCategoryFilter(e.target.value)}
+                            className="border border-gray-300 rounded-md p-2 flex-1"
+                        >
+                            <option value="">All Categories</option>
+                            <option value="General">General</option>
+                            <option value="Math">Math</option>
+                            <option value="Science">Science</option>
+                            <option value="History">History</option>
+                            <option value="Language">Language</option>
+                        </select>
+                    </div>
                     <button
                         onClick={handleSearch}
                         className="ml-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark"
@@ -47,11 +95,10 @@ export default function TestSearch() {
                     </button>
                 </div>
                 
-                    {searchResults.length > 0 ? (
+                    {filteredResults.length > 0 ? (
                         <div className="bg-card p-4 rounded-lg shadow mt-4">
-                            <h2 className="text-xl font-semibold mb-4">Search Results</h2>
                             <div className="space-y-4">
-                                {searchResults.map((test) => (
+                                {filteredResults.map((test) => (
                                     <div key={test._id} className="flex justify-between items-center p-4 border rounded-lg">
                                         <div>
                                             <h3 className="font-semibold">{test.title}</h3>

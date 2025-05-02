@@ -29,18 +29,23 @@ export default function StudentDashboard() {
                 const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
                 console.log(testsRes.data);
                 const assignedTests = testsRes.data.filter(test => test.mode === "assigned");
+                console.log(assignedTests.length);
+
+                let upcomingTests = [];
 
                 // Filter out tests that are already completed
-                const completedTestIds = historyRes.data.map(result => result.testId._id);
-                const upcomingTests = assignedTests.data.filter(test => !completedTestIds.includes(test._id));
-                setAvailableTests(upcomingTests);
+                if (assignedTests.length > 0) {
+                    const completedTestIds = historyRes.data.map(result => result.testId._id);
+                    upcomingTests = assignedTests.filter(test => !completedTestIds.includes(test._id));
+                    setAvailableTests(upcomingTests);
+                }
 
                 // Calculate performance stats
                 const stats = {
                     averageScore: 0,
-                    totalTests: testsRes.data.length,
+                    totalTests: historyRes.data.length,
                     completedTests: historyRes.data.length,
-                    upcomingTests: upcomingTests.length,
+                    upcomingTests: upcomingTests.length <= 0 ? 0 : upcomingTests.length
                 };
 
                 if (historyRes.data.length > 0) {

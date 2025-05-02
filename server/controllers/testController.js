@@ -5,17 +5,17 @@ import TestResult from "../models/testResultModel.js";
 // Get all tests
 export const getAllTests = async (req, res) => {
     try {
-        if (req.query) {
+        if (req.query.searchQuery) {
             const searchQuery = req.query.searchQuery;
             const tests = await Test.find({
                 title: { $regex: searchQuery, $options: "i" },
                 status: 'published',
                 mode: 'public'
-            }).populate("teacherId", "name email");
+            }).populate("teacherId");
             if (!tests.length) return res.status(404).json({ message: `${searchQuery} not found` });
             return res.status(200).json(tests);
         }
-        const tests = await Test.find().populate("teacherId", "name email");
+        const tests = await Test.find({ mode: 'public' }).populate("teacherId");
         res.status(200).json(tests);
     } catch (error) {
         res.status(500).json({ message: "Error fetching tests", error });
