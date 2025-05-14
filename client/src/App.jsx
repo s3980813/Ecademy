@@ -11,6 +11,8 @@ import Test from "./pages/Test";
 import TestDetail from "./pages/TestDetail";
 import StudentDashboard from "./pages/StudentDashboard";
 import TakeQuiz from "./pages/TakeQuiz";
+import Home from "./pages/Home";
+
 export default function App() {
     return (
         <>
@@ -19,10 +21,11 @@ export default function App() {
                     path="/"
                     element={
                         <ProtectedRoutes>
-                        <RedirectByRole />
+                            <RedirectByRole />
                         </ProtectedRoutes>
                     }
                 />
+                <Route path="/home" element={<Home />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/teacher-dashboard" element={<ProtectedRoutes isTeacher={true}><TeacherDashboard /></ProtectedRoutes>} />
@@ -30,7 +33,7 @@ export default function App() {
                 <Route path="/teacher-dashboard/question-set/:id" element={<ProtectedRoutes isTeacher={true}><QuestionSetDetail /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/test" element={<ProtectedRoutes isTeacher={true}><Test /></ProtectedRoutes>} />
                 <Route path="/teacher-dashboard/test/:id" element={<ProtectedRoutes isTeacher={true}><TestDetail /></ProtectedRoutes>} />
-                
+
                 <Route path="/student-dashboard/take-quiz/:id" element={<ProtectedRoutes isTeacher={false}><TakeQuiz /></ProtectedRoutes>} />
                 <Route path="/student-dashboard" element={<ProtectedRoutes isTeacher={false}><StudentDashboard /></ProtectedRoutes>} />
                 <Route path="*" element={<div className="flex justify-center items-center h-screen">404 Not Found</div>} />
