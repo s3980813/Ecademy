@@ -8,6 +8,7 @@ import questionRoutes from "./routes/questionRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import testResultRoutes from "./routes/testResultRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import openaAIRoutes from "./routes/openAIRoutes.js";
 import cookieParser from "cookie-parser";
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -20,7 +21,6 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
-
 // Connect to MongoDB
 connectDB();
 
@@ -43,6 +43,7 @@ app.use("/api/questions", questionRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/test-results", testResultRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/ai-suggestion", openaAIRoutes);
 
 app.listen(PORT,'0.0.0.0', () => console.log(`✅ Server running on port ${PORT}`));
 

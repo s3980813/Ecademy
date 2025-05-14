@@ -19,7 +19,7 @@ export default function QuestionPopup({ question, onSave, onClose }) {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div className="bg-white p-6 rounded-lg shadow-lg md:w-1/3">
                 <h2 className="text-lg font-bold mb-4">{question ? "Edit Question" : "Create Question"}</h2>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                     <label>

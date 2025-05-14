@@ -23,9 +23,12 @@ const testResultSchema = new mongoose.Schema({
         },
         selectedAnswer: {
             type: String,
-            required: true
         },
     }],
+    trueAnswer: {
+        type: Number,
+        required: true
+    },
     completedAt: {
         type: Date,
         default: Date.now

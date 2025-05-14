@@ -4,8 +4,9 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
     return (
         showPopup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                <div className="bg-white p-8 rounded-md w-[400px]">
+                <div className="bg-white p-8 rounded-md md:w-[400px] w-[90%]">
                     <h2 className="text-lg font-bold mb-4">Create New Test</h2>
+                    <p className="text-gray-600 mb-4">Test title:</p>
                     <input
                         type="text"
                         name="title"
@@ -14,6 +15,7 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                         placeholder="Test Title"
                         className="mb-4 p-2 w-full border rounded"
                     />
+                    <p className="text-gray-600 mb-4">Test description:</p>
                     <textarea
                         name="description"
                         value={newTest.description}
@@ -21,6 +23,7 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                         placeholder="Test Description"
                         className="mb-4 p-2 w-full border rounded"
                     />
+                    <p className="text-gray-600 mb-4">Test duration(minutes):</p>
                     <input
                         type="number"
                         name="duration"
@@ -29,7 +32,7 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                         placeholder="Duration (minutes)"
                         className="mb-4 p-2 w-full border rounded"
                     />
-                    {/* You can add additional fields like student assignment here */}
+                    <p className="text-gray-600 mb-4">Total question:</p>
                     <input
                     type="number"
                     name="totalQuestions"
@@ -63,6 +66,18 @@ const TestPopup = ({ showPopup, closePopup, handleChange, createTest, newTest })
                             placeholder="Hard"
                             className="p-2 border rounded"
                         />
+                    </div>
+                    <div className="mb-4">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="multipleAttempts"
+                                checked={newTest.multipleAttempts}
+                                onChange={handleChange}
+                                className="form-checkbox h-5 w-5 text-blue-600"
+                            />
+                            <span className="text-gray-700">Allow Multiple Attempts</span>
+                        </label>
                     </div>
                     <button
                         onClick={createTest}

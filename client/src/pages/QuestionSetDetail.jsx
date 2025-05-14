@@ -58,6 +58,7 @@ export default function QuestionSetDetail() {
             if (editQuestion) {
                 // Update existing question
                 const response = await axios.put(`${BACKEND_URL}/questions/${editQuestion._id}`, formData);
+                console.log("Response:", response.data.message);
                 if (response.status === 200) {
                     setQuestions((prev) =>
                         prev.map((q) => (q._id === editQuestion._id ? { ...q, ...formData } : q))
@@ -84,7 +85,11 @@ export default function QuestionSetDetail() {
                 }
             }
         } catch (error) {
-            console.error("Error saving question:", error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert(`Error: ${error.response.data.message}`);
+            } else {
+                alert("Something went wrong 😢");
+            }
         }
         closePopup();
     };
@@ -96,7 +101,11 @@ export default function QuestionSetDetail() {
             await axios.delete(`${BACKEND_URL}/questions/${questionId}`);
             setQuestions((prev) => prev.filter((q) => q._id !== questionId));
         } catch (error) {
-            console.error("Error deleting question:", error);
+            if (error.response && error.response.data && error.response.data.message) {
+                alert(`Error: ${error.response.data.message}`);
+            } else {
+                alert("Something went wrong 😢");
+            }
         }
     };
 
@@ -140,7 +149,7 @@ export default function QuestionSetDetail() {
                                     // Display each question with edit and delete buttons
                                     <div key={q._id} className="flex justify-between items-center p-3 border-b">
                                         <span>{q.text}</span>
-                                        <div>
+                                        <div className="flex space-x-2">
                                             {/* Edit and delete buttons */}
                                             <button onClick={() => openPopup(q)} className="px-2 py-1 bg-blue-500 text-white rounded-md mr-2">
                                                 Edit

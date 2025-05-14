@@ -1,5 +1,6 @@
 import QuestionSet from "../models/questionSetModel.js";
 import Question from "../models/questionModel.js";
+import { checkQuestionSetUsage } from "./questionController.js";
 
 // Get all question sets
 export const getAllQuestionSets = async (req, res) => {
@@ -48,6 +49,10 @@ export const createQuestionSet = async (req, res) => {
 // Delete a question set by ID
 export const deleteQuestionSet = async (req, res) => {
     try {
+        
+        // check question set is used by test or not
+        const isUsed = await checkQuestionSetUsage(req.params.id, res);
+        if (isUsed) return;  
         const deletedSet = await QuestionSet.findByIdAndDelete(req.params.id);
         if (!deletedSet) return res.status(404).json({ message: "Question set not found" });
         await Question.deleteMany({ questionSetId: req.params.id });

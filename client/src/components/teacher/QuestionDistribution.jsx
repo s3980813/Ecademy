@@ -1,14 +1,6 @@
 import React from 'react';
 
-const QuestionDistribution = ({ 
-    test, 
-    tempDistribution, 
-    handleDistributionChange, 
-    handleConfirmDistribution,
-    questionSets 
-}) => {
-    const selectedSet = questionSets.find(set => set._id === test.questionSetId);
-
+export default function QuestionDistribution({ test, tempDistribution, handleDistributionChange, handleConfirmDistribution }) {
     return (
         <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Question Distribution</h2>
@@ -23,7 +15,7 @@ const QuestionDistribution = ({
                             value={tempDistribution.totalQuestions}
                             onChange={(e) => handleDistributionChange('totalQuestions', e.target.value)}
                             className="w-full p-2 border rounded-md"
-                            disabled={test.status === 'published' || !test.questionSetId}
+                            disabled={test.status === 'published'}
                             min="0"
                         />
                     </div>
@@ -31,61 +23,40 @@ const QuestionDistribution = ({
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Easy Questions
                         </label>
-                        <div className="relative">
-                            <input
-                                type="number"
-                                value={tempDistribution.easy}
-                                onChange={(e) => handleDistributionChange('easy', e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                disabled={test.status === 'published' || !test.questionSetId}
-                                min="0"
-                            />
-                            {test.questionSetId && (
-                                <span className="absolute right-2 top-2 text-sm text-gray-500">
-                                    Max: {selectedSet?.easy || 0}
-                                </span>
-                            )}
-                        </div>
+                        <input
+                            type="number"
+                            value={tempDistribution.easy}
+                            onChange={(e) => handleDistributionChange('easy', e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                            disabled={test.status === 'published'}
+                            min="0"
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Medium Questions
                         </label>
-                        <div className="relative">
-                            <input
-                                type="number"
-                                value={tempDistribution.medium}
-                                onChange={(e) => handleDistributionChange('medium', e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                disabled={test.status === 'published' || !test.questionSetId}
-                                min="0"
-                            />
-                            {test.questionSetId && (
-                                <span className="absolute right-2 top-2 text-sm text-gray-500">
-                                    Max: {selectedSet?.medium || 0}
-                                </span>
-                            )}
-                        </div>
+                        <input
+                            type="number"
+                            value={tempDistribution.medium}
+                            onChange={(e) => handleDistributionChange('medium', e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                            disabled={test.status === 'published'}
+                            min="0"
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Hard Questions
                         </label>
-                        <div className="relative">
-                            <input
-                                type="number"
-                                value={tempDistribution.hard}
-                                onChange={(e) => handleDistributionChange('hard', e.target.value)}
-                                className="w-full p-2 border rounded-md"
-                                disabled={test.status === 'published' || !test.questionSetId}
-                                min="0"
-                            />
-                            {test.questionSetId && (
-                                <span className="absolute right-2 top-2 text-sm text-gray-500">
-                                    Max: {selectedSet?.hard || 0}
-                                </span>
-                            )}
-                        </div>
+                        <input
+                            type="number"
+                            value={tempDistribution.hard}
+                            onChange={(e) => handleDistributionChange('hard', e.target.value)}
+                            className="w-full p-2 border rounded-md"
+                            disabled={test.status === 'published'}
+                            min="0"
+                        />
                     </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-md">
@@ -114,7 +85,6 @@ const QuestionDistribution = ({
                         <button
                             onClick={handleConfirmDistribution}
                             className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors"
-                            disabled={!test.questionSetId}
                         >
                             Confirm Changes
                         </button>
@@ -123,6 +93,4 @@ const QuestionDistribution = ({
             </div>
         </div>
     );
-};
-
-export default QuestionDistribution; 
+}

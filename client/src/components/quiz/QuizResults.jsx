@@ -1,6 +1,6 @@
 import React from 'react';
 
-const QuizResults = ({ score, totalQuestions, onRetry }) => {
+const QuizResults = ({ score, totalQuestions, onRetry, navigateToDashboard }) => {
   return (
     <div className="text-center">
       <h2 className="text-3xl font-bold mb-4">🎉 Quiz Complete!</h2>
@@ -17,6 +17,12 @@ const QuizResults = ({ score, totalQuestions, onRetry }) => {
         className="px-5 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
       >
         Retry 🔁
+      </button>
+      <button
+        onClick={() => navigateToDashboard()}
+        className="ml-4 px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+        >
+        Go to homepage 🏠
       </button>
     </div>
   );

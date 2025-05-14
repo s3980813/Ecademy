@@ -2,6 +2,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
+import Hamburgerbar from "../components/Hamburgerbar";
 
 export default function TeacherDashboard() {
   const { user } = useAuth();
@@ -36,14 +37,19 @@ export default function TeacherDashboard() {
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <Sidebar />
+
+      {/* Hamburger Menu */}
       
       {/* Main Content */}
-      <main className="flex-1 p-10 bg-background">
+      <main className="flex-1 p-10 bg-background md:ml-64">
+        <div className="flex items-center justify-between mb-4">
+          <Hamburgerbar />
+        </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Welcome, {user?.username || "Teacher"} 👋</h1>
         <p className="text-gray-600">Here’s your teaching control center 🧑‍🏫.</p>
 
         {/* Some dashboard boxes */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           
           <div className="bg-card shadow-md p-6 rounded-lg">
             <h2 className="text-xl font-semibold text-gray-700">Question Sets</h2>
@@ -81,11 +87,6 @@ export default function TeacherDashboard() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className="bg-card shadow-md p-6 rounded-lg">
-            <h2 className="text-xl font-semibold text-gray-700">Submissions</h2>
-            <p className="text-gray-500 mt-2">Review completed tests from students.</p>
           </div>
         </div>
       </main>

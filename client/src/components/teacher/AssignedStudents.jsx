@@ -1,20 +1,9 @@
 import React from 'react';
 
-const AssignedStudents = ({ 
-    test, 
-    assignedStudents, 
-    handleAddStudent, 
-    handleRemoveStudent,
-    identifier,
-    setIdentifier,
-    searchType,
-    setSearchType,
-    error 
-}) => {
+export default function AssignedStudents({ test, assignedStudents, handleAddStudent, handleRemoveStudent, searchType, setSearchType, identifier, setIdentifier, error }) {
     return (
         <div className="mt-4 p-4 bg-gray-100 rounded-lg">
             <h3 className="font-semibold mb-4">Assigned Students</h3>
-            
             <form onSubmit={handleAddStudent} className="mb-4">
                 <div className="flex gap-2 mb-2">
                     <select
@@ -64,6 +53,4 @@ const AssignedStudents = ({
             </div>
         </div>
     );
-};
-
-export default AssignedStudents; 
+}

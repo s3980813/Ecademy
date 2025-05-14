@@ -1,10 +1,21 @@
 import Test from "../models/testModel.js";
 import Question from "../models/questionModel.js";
+import TestResult from "../models/testResultModel.js";
 
 // Get all tests
 export const getAllTests = async (req, res) => {
     try {
-        const tests = await Test.find().populate("teacherId", "name email");
+        if (req.query.searchQuery) {
+            const searchQuery = req.query.searchQuery;
+            const tests = await Test.find({
+                title: { $regex: searchQuery, $options: "i" },
+                status: 'published',
+                mode: 'public'
+            }).populate("teacherId");
+            if (!tests.length) return res.status(404).json({ message: `${searchQuery} not found` });
+            return res.status(200).json(tests);
+        }
+        const tests = await Test.find({ mode: 'public' }).populate("teacherId");
         res.status(200).json(tests);
     } catch (error) {
         res.status(500).json({ message: "Error fetching tests", error });
@@ -66,6 +77,7 @@ export const getQuestionsForTest = async (req, res) => {
         res.status(500).json({ message: "Error fetching questions for test", error });
     }
 }
+
 // Create a new test
 export const createTest = async (req, res) => {
     try {
@@ -91,6 +103,9 @@ export const updateTest = async (req, res) => {
 // Delete a test by ID
 export const deleteTest = async (req, res) => {
     try {
+        // Delete test results associated with the test
+        await TestResult.deleteMany({ testId: req.params.id });
+        // Delete the test
         const deletedTest = await Test.findByIdAndDelete(req.params.id);
         if (!deletedTest) return res.status(404).json({ message: "Test not found" });
         res.status(200).json({ message: "Test successfully deleted" });

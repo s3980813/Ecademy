@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '../components/Sidebar';
+import Hamburgerbar from '../components/Hamburgerbar';
 
 export default function StudentDashboard() {
     const [availableTests, setAvailableTests] = useState([]);
@@ -19,20 +20,32 @@ export default function StudentDashboard() {
     useEffect(() => {
         const fetchStudentData = async () => {
             try {
-                // Fetch available tests
-                const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
-                setAvailableTests(testsRes.data);
-                console.log(testsRes.data);
                 // Fetch test history
                 const historyRes = await axios.get(`${BACKEND_URL}/test-results/student/${user._id}`);
                 setTestHistory(historyRes.data);
+                console.log(historyRes.data);
+
+                // Fetch available tests
+                const testsRes = await axios.get(`${BACKEND_URL}/tests/student/${user._id}`);
+                console.log(testsRes.data);
+                const assignedTests = testsRes.data.filter(test => test.mode === "assigned");
+                console.log(assignedTests.length);
+
+                let upcomingTests = [];
+
+                // Filter out tests that are already completed
+                if (assignedTests.length > 0) {
+                    const completedTestIds = historyRes.data.map(result => result.testId._id);
+                    upcomingTests = assignedTests.filter(test => !completedTestIds.includes(test._id));
+                    setAvailableTests(upcomingTests);
+                }
 
                 // Calculate performance stats
                 const stats = {
                     averageScore: 0,
-                    totalTests: testsRes.data.length,
+                    totalTests: historyRes.data.length,
                     completedTests: historyRes.data.length,
-                    upcomingTests: testsRes.data.filter(test => !historyRes.data.some(h => h.testId === test._id)).length
+                    upcomingTests: upcomingTests.length <= 0 ? 0 : upcomingTests.length
                 };
 
                 if (historyRes.data.length > 0) {
@@ -53,11 +66,15 @@ export default function StudentDashboard() {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString();
+        const date = new Date(dateString);
+        return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     };
 
+    // Sort test history by completion date (oldest to latest)
+    const sortedTestHistory = [...testHistory].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+
     // Prepare data for performance chart
-    const performanceData = testHistory.map(result => ({
+    const performanceData = sortedTestHistory.map(result => ({
         name: result.testTitle,
         score: result.score
     }));
@@ -67,7 +84,10 @@ export default function StudentDashboard() {
             {/* Sidebar */}
             <Sidebar />
 
-            <div className="flex-1 p-10 bg-background">
+            <div className="flex-1 p-10 bg-background md:ml-64">
+                <div className="flex items-center justify-between mb-4">
+                    <Hamburgerbar />
+                </div>
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-primary">Student Dashboard</h1>
@@ -99,20 +119,20 @@ export default function StudentDashboard() {
                     <h2 className="text-xl font-semibold mb-4">Performance Overview</h2>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={performanceData}>
+                            <LineChart data={performanceData}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                <Bar dataKey="score" fill="#4F46E5" />
-                            </BarChart>
+                                <Line type="monotone" dataKey="score" stroke="#4F46E5" />
+                            </LineChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
 
                 {/* Available Tests */}
                 <div className="bg-card p-4 rounded-lg shadow mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Available Tests</h2>
+                    <h2 className="text-xl font-semibold mb-4">Assigned Tests</h2>
                     <div className="space-y-4">
                         {availableTests.filter(test => !testHistory.some(h => h.testId === test._id)).map(test => (
                             <div key={test._id} className="flex justify-between items-center p-4 border rounded-lg">
@@ -135,13 +155,13 @@ export default function StudentDashboard() {
                 </div>
 
                 {/* Test History */}
-                <div className="bg-card p-4 rounded-lg shadow">
+                <div className="bg-card p-4 rounded-lg shadow mb-8">
                     <h2 className="text-xl font-semibold mb-4">Test History</h2>
                     <div className="space-y-4">
                         {testHistory.map(result => (
                             <div key={result._id} className="flex justify-between items-center p-4 border rounded-lg">
                                 <div>
-                                    <h3 className="font-semibold">{result.testTitle}</h3>
+                                    <h3 className="font-semibold">{result.testId.title}</h3>
                                     <p className="text-sm text-textSecondary">
                                         Completed on: {formatDate(result.completedAt)}
                                     </p>
@@ -149,8 +169,14 @@ export default function StudentDashboard() {
                                 <div className="text-right">
                                     <p className="font-semibold text-primary">{result.score}%</p>
                                     <p className="text-sm text-textSecondary">
-                                        {result.correctAnswers}/{result.totalQuestions} correct
+                                        {result.trueAnswer}/{result.testId.totalQuestions} correct
                                     </p>
+                                    <button
+                                        onClick={() => window.location.href = `/answer-history/${result._id}`}
+                                        className="px-4 py-2 bg-secondary text-white rounded-md hover:bg-secondary-dark transition-colors ml-2"
+                                    >
+                                        View History
+                                    </button>
                                 </div>
                             </div>
                         ))}

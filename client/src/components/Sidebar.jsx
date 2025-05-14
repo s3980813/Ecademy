@@ -8,7 +8,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="w-64 bg-[#1E293B] text-white p-6 flex flex-col">
+        <aside className="hidden w-64 bg-[#1E293B] text-white p-6 md:flex flex-col fixed h-full">
         <h2 className="text-2xl font-bold mb-6">🎓 Ecademy</h2>
         <nav className="flex flex-col gap-4 text-lg">
           { user.isTeacher ? (
@@ -21,6 +21,8 @@ export default function Sidebar() {
             <>
             <a href="/teacher-dashboard" className="hover:text-yellow-400">🏠 Dashboard</a>
             <a href="/teacher-dashboard/test" className="hover:text-yellow-400">📝 Assigned Tests</a>
+            <a href="/student-dashboard/test-search" className="hover:text-yellow-400">🔍 Search Tests</a>
+            <a href="/student-dashboard/enter-test-id" className="hover:text-yellow-400">📝 Take test with code</a>
             </>  
           )}
         </nav>

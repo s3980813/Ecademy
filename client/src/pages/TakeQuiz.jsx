@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import QuizTimer from "../components/quiz/QuizTimer";
 import QuizQuestion from "../components/quiz/QuizQuestion";
@@ -19,6 +19,8 @@ export default function TakeQuiz() {
   const [error, setError] = useState(null);
   const { id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchTest = async () => {
@@ -31,6 +33,20 @@ export default function TakeQuiz() {
         setTest(testData);
         setCountdown(testData.duration * 60);
 
+        // Check if the test allows multiple attempts
+        if (!testData.multipleAttempts) {
+          const attemptsResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/test-results/${testData._id}/results`);
+          console.log('Attempts:', attemptsResponse.data);
+          if (attemptsResponse.data.length > 0) {
+            attemptsResponse.data.forEach(attempt => {
+              if (attempt.studentId._id === user._id) {
+                alert("You have already completed this test. You cannot retake it.");
+                navigate('/student-dashboard', { replace: true });
+                return
+              }
+            });
+          }
+        }
         // Fetch questions for the question set
         const questionsResponse = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/questions`,
@@ -41,39 +57,22 @@ export default function TakeQuiz() {
           }
         );
         const allQuestions = questionsResponse.data;
-        console.log('All Questions:', allQuestions);
 
         // Filter questions by difficulty
         const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy');
         const mediumQuestions = allQuestions.filter(q => q.difficulty === 'medium');
         const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
 
-        console.log('Filtered Questions:', {
-          easy: easyQuestions.length,
-          medium: mediumQuestions.length,
-          hard: hardQuestions.length
-        });
-
         // Get question counts from test data
         const easyCount = testData.easy || 0;
         const mediumCount = testData.medium || 0;
         const hardCount = testData.hard || 0;
-
-        console.log('Question Counts:', {
-          easy: easyCount,
-          medium: mediumCount,
-          hard: hardCount
-        });
-
         // Randomly select questions based on distribution
         const selectedQuestions = [
           ...getRandomQuestions(easyQuestions, easyCount),
           ...getRandomQuestions(mediumQuestions, mediumCount),
           ...getRandomQuestions(hardQuestions, hardCount)
         ];
-
-        console.log('Selected Questions:', selectedQuestions);
-
         // Shuffle all selected questions
         const shuffledQuestions = shuffleArray(selectedQuestions);
         setQuestions(shuffledQuestions);
@@ -112,6 +111,36 @@ export default function TakeQuiz() {
     return () => clearInterval(timer);
   }, [isFinished, countdown]);
 
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (!isFinished) {
+        event.preventDefault();
+        event.returnValue = "If you leave, your test will be submitted automatically.";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isFinished]);
+
+  useEffect(() => {
+    const handleNavigation = () => {
+      if (!isFinished) {
+        alert("You cannot navigate away during the test. Your test will be submitted automatically.");
+        navigate(location.pathname, { replace: true });
+      }
+    };
+
+    window.addEventListener("popstate", handleNavigation);
+
+    return () => {
+      window.removeEventListener("popstate", handleNavigation);
+    };
+  }, [isFinished, navigate, location.pathname]);
+
   const selectAnswer = (optionKey) => {
     if (isFinished) return;
     setSelectedAnswers({ ...selectedAnswers, [current]: optionKey });
@@ -134,21 +163,24 @@ export default function TakeQuiz() {
       let totalScore = 0;
       const answers = questions.map((q, i) => ({
         questionId: q._id,
-        selectedAnswer: selectedAnswers[i] || null // Use null if no answer selected
+        selectedAnswer: selectedAnswers[i] || "" // Use null if no answer selected
       }));
       console.log('Answers:', answers);
 
       // Calculate score
       questions.forEach((q, i) => {
-        if (selectedAnswers[i] === q.correctAnswer) totalScore += 1;
+        if (selectedAnswers[i] && selectedAnswers[i] === q.correctAnswer) {
+          totalScore += 1;
+        }
       });
 
       //Submit test attempt
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/test-results/submit`, {
-        studentId: user._id, // Assuming you store user ID in local storage
+        studentId: user._id,
         testId: id,
         answers,
-        score: (totalScore / questions.length) * 100
+        score: (totalScore / questions.length) * 100,
+        trueAnswer: totalScore,
       });
 
       setScore(totalScore);
@@ -232,6 +264,7 @@ export default function TakeQuiz() {
             score={score}
             totalQuestions={questions.length}
             onRetry={resetQuiz}
+            navigateToDashboard={() => navigate('/student-dashboard')}
           />
         )}
       </div>

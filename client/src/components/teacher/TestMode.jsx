@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TestMode = ({ test, handleModeChange, copyTestId, copied }) => {
+export default function TestMode({ test, handleModeChange, copyTestId, copied, id }) {
     return (
         <div className="mb-8">
             <h2 className="text-xl font-semibold mb-4">Test Mode</h2>
@@ -46,7 +46,7 @@ const TestMode = ({ test, handleModeChange, copyTestId, copied }) => {
                 <div className="mt-4 p-4 bg-gray-100 rounded-lg">
                     <h3 className="font-semibold mb-2">Test Access Code</h3>
                     <div className="flex items-center gap-2">
-                        <code className="p-2 bg-white rounded border flex-1">{test._id}</code>
+                        <code className="p-2 bg-white rounded border flex-1">{id}</code>
                         <button
                             onClick={copyTestId}
                             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
@@ -61,6 +61,4 @@ const TestMode = ({ test, handleModeChange, copyTestId, copied }) => {
             )}
         </div>
     );
-};
-
-export default TestMode; 
+}
